@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:foodapp_user/screens/coupons_screen.dart';
 
 class RewardsScreen extends StatefulWidget {
   const RewardsScreen({super.key});
@@ -9,9 +8,9 @@ class RewardsScreen extends StatefulWidget {
 }
 
 class _RewardsScreenState extends State<RewardsScreen> {
-  // الألوان الموحدة للتطبيق
+  // ألوان التطبيق - اللون الأساسي الموحد (نفس ألوان شاشة القسائم)
   static const Color _primaryColor = Color(0xFF00c1e8);
-  static const Color _primaryDark = Color(0xFF0099B8);
+  static const Color _primaryLight = Color(0xFFE6F9FC);
 
   int _selectedPointsFilter = 0; // 0: الكل، 1: المكتسبة، 2: المنفقة
   
@@ -19,6 +18,52 @@ class _RewardsScreenState extends State<RewardsScreen> {
   final int _totalPoints = 1250;
   final int _earnedPoints = 1850;
   final int _spentPoints = 600;
+
+  // قائمة المكافآت المتاحة
+  final List<Map<String, dynamic>> _rewards = [
+    {
+      'title': 'خصم 10% على الطلب القادم',
+      'points': 100,
+      'icon': Icons.percent,
+      'color': Colors.green,
+      'description': 'خصم 10% على أي طلب بقيمة 50 ريال أو أكثر',
+    },
+    {
+      'title': 'وجبة مجانية صغيرة',
+      'points': 250,
+      'icon': Icons.fastfood,
+      'color': Colors.orange,
+      'description': 'احصل على وجبة مجانية من قائمة الوجبات الصغيرة',
+    },
+    {
+      'title': 'مشروب مجاني',
+      'points': 150,
+      'icon': Icons.local_drink,
+      'color': Colors.blue,
+      'description': 'مشروب مجاني من أي حجم مع طلبك القادم',
+    },
+    {
+      'title': 'خصم 20% خاص',
+      'points': 300,
+      'icon': Icons.local_offer,
+      'color': Colors.red,
+      'description': 'خصم 20% على الطلب القادم بحد أقصى 30 ريال',
+    },
+    {
+      'title': 'توصيل مجاني لمدة شهر',
+      'points': 500,
+      'icon': Icons.delivery_dining,
+      'color': Colors.purple,
+      'description': 'توصيل مجاني لجميع طلباتك لمدة شهر كامل',
+    },
+    {
+      'title': 'وجبة عائلية مجانية',
+      'points': 800,
+      'icon': Icons.family_restroom,
+      'color': Colors.indigo,
+      'description': 'وجبة عائلية كاملة مجانية تكفي ل4 أشخاص',
+    },
+  ];
 
   // دالة لحساب النقاط المعروضة حسب الفلتر
   int get _displayedPoints {
@@ -32,292 +77,19 @@ class _RewardsScreenState extends State<RewardsScreen> {
     }
   }
 
-  // دالة لإرجاع لون النقاط حسب الفلتر
-  Color get _pointsColor {
-    switch (_selectedPointsFilter) {
-      case 1: // المكتسبة - اللون الأساسي
-        return _primaryColor;
-      case 2: // المنفقة - لون ثانوي  
-        return _primaryDark;
-      default: // الكل - اللون الأساسي
-        return _primaryColor;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: _primaryColor),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: Text(
-            'مكافآتي',
-            style: TextStyle(
-              color: _primaryColor,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          centerTitle: true,
-        ),
+        backgroundColor: Colors.grey[50],
         body: Column(
           children: [
-            // Header section with unified colors
-            Container(
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    _primaryColor.withValues(alpha: 0.15),
-                    _primaryDark.withValues(alpha: 0.12),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: _primaryColor.withValues(alpha: 0.2),
-                  width: 1.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: _primaryColor.withValues(alpha: 0.1),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              _primaryColor.withValues(alpha: 0.15),
-                              _primaryColor.withValues(alpha: 0.1),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: _primaryColor.withValues(alpha: 0.3),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.stars_rounded,
-                          color: _primaryColor,
-                          size: 32,
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'مصطفى محمد أهلاً بك',
-                              style: TextStyle(
-                                color: _primaryColor,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'في مكافآتك',
-                              style: TextStyle(
-                                color: _primaryColor.withValues(alpha: 0.7),
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  // Points filter section with unified colors
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                    decoration: BoxDecoration(
-                      color: _primaryColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: _primaryColor.withValues(alpha: 0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const CouponsScreen()),
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                              decoration: BoxDecoration(
-                                color: _primaryColor.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: _primaryColor.withValues(alpha: 0.3),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Column(
-                                children: [
-                                  Icon(Icons.local_offer_rounded, color: _primaryColor, size: 24),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'القسائم',
-                                    style: TextStyle(
-                                      color: _primaryColor,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  Text(
-                                    '0',
-                                    style: TextStyle(
-                                      color: _primaryColor.withValues(alpha: 0.8),
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                            decoration: BoxDecoration(
-                              color: _primaryColor.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: _primaryColor.withValues(alpha: 0.3),
-                                width: 1,
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                Icon(Icons.stars_rounded, color: _primaryColor, size: 24),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'النقاط',
-                                  style: TextStyle(
-                                    color: _primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                Text(
-                                  '$_displayedPoints',
-                                  style: TextStyle(
-                                    color: _primaryColor.withValues(alpha: 0.8),
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Points filter buttons
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  _buildFilterButton('الكل', 0),
-                  const SizedBox(width: 8),
-                  _buildFilterButton('المكتسبة', 1),
-                  const SizedBox(width: 8),
-                  _buildFilterButton('المنفقة', 2),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Content area
+            // Header Section - مطابق لتصميم شاشة القسائم
+            _buildHeader(),
+            // Content Section
             Expanded(
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    topRight: Radius.circular(24),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    Text(
-                      'سجل النقاط',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: _pointsColor,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Expanded(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.stars_outlined,
-                              size: 64,
-                              color: Colors.grey,
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              'ستظهر هنا معاملات النقاط عند الاتصال بالخادم',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'النقاط الحالية متاحة للاستخدام في قسم المكافآت',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              child: _buildContent(),
             ),
           ],
         ),
@@ -325,41 +97,440 @@ class _RewardsScreenState extends State<RewardsScreen> {
     );
   }
 
-  Widget _buildFilterButton(String title, int filterValue) {
-    final bool isSelected = _selectedPointsFilter == filterValue;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _selectedPointsFilter = filterValue;
-          });
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+  Widget _buildHeader() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            _primaryColor,
+            _primaryColor.withValues(alpha: 0.8),
+          ],
+        ),
+      ),
+      child: SafeArea(
+        child: Column(
+          children: [
+            // App Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  ),
+                  const Expanded(
+                    child: Text(
+                      'مكافآتي',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 48), // To balance the back button
+                ],
+              ),
+            ),
+            // Points Display Section
+            _buildPointsSection(),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPointsSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.stars_rounded,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'نقاطك الحالية',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '$_displayedPoints',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            offset: const Offset(0, 2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Points Filter Buttons
+          Row(
+            children: [
+              Expanded(
+                child: _buildFilterButton('الكل', 0),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildFilterButton('المكتسبة', 1),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildFilterButton('المنفقة', 2),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterButton(String title, int index) {
+    final isSelected = _selectedPointsFilter == index;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedPointsFilter = index;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? Colors.white.withValues(alpha: 0.9)
+              : Colors.white.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected 
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: isSelected ? _primaryColor : Colors.white,
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: _primaryColor.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(
+          children: [
+            // Header with gradient
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    _primaryLight,
+                    _primaryLight.withValues(alpha: 0.5),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.card_giftcard_rounded,
+                    color: _primaryColor,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'المكافآت المتاحة',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2C3E50),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Rewards List
+            Expanded(
+              child: _buildRewardsList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRewardsList() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: _rewards.length,
+      itemBuilder: (context, index) {
+        final reward = _rewards[index];
+        final canRedeem = _totalPoints >= reward['points'];
+        
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            gradient: isSelected
-                ? LinearGradient(
-                    colors: [_primaryColor, _primaryDark],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  )
-                : null,
-            color: isSelected ? null : _primaryColor.withValues(alpha: 0.1),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: _primaryColor.withValues(alpha: isSelected ? 0.8 : 0.3),
-              width: 1.5,
+              color: canRedeem 
+                  ? _primaryColor.withValues(alpha: 0.2)
+                  : Colors.grey.withValues(alpha: 0.2),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: (canRedeem ? _primaryColor : Colors.grey).withValues(alpha: 0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                // Reward Icon
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: canRedeem 
+                        ? reward['color'].withValues(alpha: 0.1)
+                        : Colors.grey.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    reward['icon'],
+                    color: canRedeem ? reward['color'] : Colors.grey,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Reward Details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        reward['title'],
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: canRedeem ? const Color(0xFF2C3E50) : Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        reward['description'],
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: canRedeem 
+                              ? Colors.grey[600] 
+                              : Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.stars,
+                            color: canRedeem ? _primaryColor : Colors.grey,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${reward['points']} نقطة',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: canRedeem ? _primaryColor : Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                // Redeem Button
+                GestureDetector(
+                  onTap: canRedeem ? () => _redeemReward(reward) : null,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: canRedeem 
+                          ? _primaryColor 
+                          : Colors.grey.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      canRedeem ? 'استبدل' : 'غير متاح',
+                      style: TextStyle(
+                        color: canRedeem ? Colors.white : Colors.grey[600],
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isSelected ? Colors.white : _primaryColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+        );
+      },
+    );
+  }
+
+  void _redeemReward(Map<String, dynamic> reward) {
+    showDialog(
+      context: context,
+      builder: (context) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.stars,
+                color: _primaryColor,
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'استبدال المكافأة',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'هل تريد استبدال ${reward['points']} نقطة للحصول على:',
+                style: const TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: _primaryLight,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  reward['title'],
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: _primaryColor,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'إلغاء',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'تم استبدال ${reward['title']} بنجاح!',
+                      textAlign: TextAlign.center,
+                    ),
+                    backgroundColor: _primaryColor,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _primaryColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('تأكيد الاستبدال'),
+            ),
+          ],
         ),
       ),
     );

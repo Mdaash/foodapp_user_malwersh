@@ -26,8 +26,16 @@ class _AnimatedCartBarState extends State<AnimatedCartBar>
   late final Animation<double> _scaleAnim;
   late int _prevCount;
   Timer? _timer;
+  CartModel? _cartModel; // إضافة مرجع للـ CartModel
 
   static const Color _primaryPink = Color(0xFF00c1e8);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // حفظ مرجع للـ CartModel هنا بدلاً من في dispose()
+    _cartModel = context.read<CartModel>();
+  }
 
   @override
   void initState() {
@@ -57,17 +65,19 @@ class _AnimatedCartBarState extends State<AnimatedCartBar>
   }
 
   void _onCartChanged() {
-    final cart = context.read<CartModel>();
+    // Debug: AnimatedCartBar: _onCartChanged called
+    final cart = _cartModel ?? context.read<CartModel>();
     if (cart.items.length != _prevCount) {
       _prevCount = cart.items.length;
       _pulseCtl.forward(from: 0);
+      // Debug: AnimatedCartBar: Pulse animation triggered
     }
   }
 
   @override
   void dispose() {
-    if (widget.isExpanded) {
-      context.read<CartModel>().removeListener(_onCartChanged);
+    if (widget.isExpanded && _cartModel != null) {
+      _cartModel!.removeListener(_onCartChanged);
     }
     _timer?.cancel();
     _pulseCtl.dispose();
@@ -76,6 +86,7 @@ class _AnimatedCartBarState extends State<AnimatedCartBar>
 
   @override
   Widget build(BuildContext context) {
+    // Debug: AnimatedCartBar build: isExpanded = ${widget.isExpanded}
     final cart = context.watch<CartModel>();
     if (cart.items.isEmpty) return const SizedBox.shrink();
 
@@ -93,10 +104,15 @@ class _AnimatedCartBarState extends State<AnimatedCartBar>
         child: ScaleTransition(
           scale: _scaleAnim,
           child: GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const CartScreen()),
-            ),
+            onTap: () {
+              // Debug: AnimatedCartBar tapped! Navigating to CartScreen...
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CartScreen(storeName: widget.storeName),
+                ),
+              );
+            },
             child: widget.isExpanded
                 ? _buildExpanded(cart.items.length)
                 : _buildCollapsed(cart.items.length),

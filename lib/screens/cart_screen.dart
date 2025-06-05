@@ -44,6 +44,7 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Debug: CartScreen build called
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -67,6 +68,7 @@ class CartScreen extends StatelessWidget {
         ),
         body: Consumer<CartModel>(
           builder: (context, cart, child) {
+            // Debug: CartScreen Consumer builder called. cart.items.length = ${cart.items.length}
             if (cart.items.isEmpty) {
               return Center(
                 child: Column(
@@ -338,11 +340,11 @@ class CartScreen extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              _buildSuggestionItem('بطاطس', 'assets/images/fried-chicken.png', 7.0),
+              _buildSuggestionItem('بطاطس', 'assets/fried-chicken.png', 7.0),
               const SizedBox(width: 12),
-              _buildSuggestionItem('مشروب', 'assets/images/drink.png', 5.0),
+              _buildSuggestionItem('مشروب', 'assets/drink.png', 5.0),
               const SizedBox(width: 12),
-              _buildSuggestionItem('سلطة', 'assets/images/salad.png', 6.0),
+              _buildSuggestionItem('سلطة', 'assets/salad.png', 6.0),
             ],
           ),
         ],

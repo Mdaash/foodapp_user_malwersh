@@ -65,10 +65,10 @@ git checkout master
 
 ## 🌐 روابط GitHub
 
-- **رابط المستودع**: https://github.com/Mdaash/foodapp_user
-- **الفرع الرئيسي**: https://github.com/Mdaash/foodapp_user/tree/master
-- **الفرع الاحتياطي**: https://github.com/Mdaash/foodapp_user/tree/backup-20250607_083401
-- **العلامة الاحتياطية**: https://github.com/Mdaash/foodapp_user/releases/tag/backup-v1.0-20250607
+- **رابط المستودع**: https://github.com/Mdaash/foodapp_user_malwersh
+- **الفرع الرئيسي**: https://github.com/Mdaash/foodapp_user_malwersh/tree/master
+- **الفرع الاحتياطي**: https://github.com/Mdaash/foodapp_user_malwersh/tree/backup-20250607_083401
+- **العلامة الاحتياطية**: https://github.com/Mdaash/foodapp_user_malwersh/releases/tag/backup-v1.0-20250607
 
 ## 📋 إحصائيات GitHub
 - **حالة المستودع**: عام (Public)

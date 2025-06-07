@@ -245,6 +245,7 @@ class _MapScreenState extends State<MapScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         backgroundColor: Colors.grey[100],
         body: Stack(
           children: [

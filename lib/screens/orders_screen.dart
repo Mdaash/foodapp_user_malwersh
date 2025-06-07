@@ -107,27 +107,41 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: Colors.white,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(kToolbarHeight + MediaQuery.of(context).padding.top + 4),
+          child: Container(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 4,
+              left: 16,
+              right: 16,
+            ),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+            ),
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
+              title: const Text('الطلبات', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+              iconTheme: const IconThemeData(color: Colors.black),
+              automaticallyImplyLeading: false,
+            ),
+          ),
+        ),
         body: Column(
           children: [
-            // عنوان الشاشة مع التبويبات
+            // التبويبات
             Container(
               color: Colors.white,
-              child: Column(
-                children: [
-                  const SizedBox(height: 16),
-                  const Text('الطلبات', 
-                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)),
-                  const SizedBox(height: 16),
-                  TabBar(
-                    controller: _tabController,
-                    labelColor: const Color(0xFF00c1e8),
-                    unselectedLabelColor: Colors.grey,
-                    indicatorColor: const Color(0xFF00c1e8),
-                    tabs: const [
-                      Tab(text: 'الحالية'),
-                      Tab(text: 'السابقة'),
-                    ],
-                  ),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TabBar(
+                controller: _tabController,
+                labelColor: const Color(0xFF00c1e8),
+                unselectedLabelColor: Colors.grey,
+                indicatorColor: const Color(0xFF00c1e8),
+                tabs: const [
+                  Tab(text: 'الحالية'),
+                  Tab(text: 'السابقة'),
                 ],
               ),
             ),

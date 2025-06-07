@@ -107,11 +107,13 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         backgroundColor: Colors.white, // خلفية الشاشة بيضاء
         appBar: AppBar(
           title: const Text('مراجعة وتأكيد الطلب'),
           backgroundColor: const Color(0xFF00c1e8),
           foregroundColor: Colors.white,
+          elevation: 0,
         ),
         body: ListView(
           padding: const EdgeInsets.only(bottom: 90), // مساحة للزر الثابت

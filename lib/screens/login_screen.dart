@@ -63,8 +63,10 @@ class _LoginScreenState extends State<LoginScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         backgroundColor: Colors.white,
         body: SafeArea(
+          top: false,
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(

@@ -82,16 +82,19 @@ class _RewardsScreenState extends State<RewardsScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         backgroundColor: Colors.grey[50],
-        body: Column(
-          children: [
+        body: SafeArea(
+          top: false,
+          child: Column(
+            children: [
             // Header Section - مطابق لتصميم شاشة القسائم
             _buildHeader(),
-            // Content Section
             Expanded(
               child: _buildContent(),
             ),
           ],
+        ),
         ),
       ),
     );

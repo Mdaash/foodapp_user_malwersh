@@ -48,6 +48,7 @@ class _CouponsScreenState extends State<CouponsScreen>
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         backgroundColor: Colors.grey[50],
         body: Column(
           children: [

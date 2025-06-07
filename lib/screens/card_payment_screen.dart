@@ -108,10 +108,12 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
           title: const Text('إدخال معلومات البطاقة'),
           backgroundColor: const Color(0xFF00c1e8),
           foregroundColor: Colors.white,
+          elevation: 0,
         ),
         body: Padding(
           padding: const EdgeInsets.all(24),

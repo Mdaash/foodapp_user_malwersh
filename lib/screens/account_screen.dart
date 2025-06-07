@@ -1,127 +1,138 @@
 import 'package:flutter/material.dart';
 
-class AccountScreen extends StatelessWidget {
+class AccountScreen extends StatefulWidget {
   final VoidCallback? onBack;
+
   const AccountScreen({super.key, this.onBack});
 
   @override
+  _AccountScreenState createState() => _AccountScreenState();
+}
+
+class _AccountScreenState extends State<AccountScreen> {
+  @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF00c1e8);
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: true,
-          title: const Text('الحساب', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-          iconTheme: const IconThemeData(color: Colors.black),
-          automaticallyImplyLeading: false,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(kToolbarHeight + MediaQuery.of(context).padding.top + 4),
+        child: Container(
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + 4,
+            left: 16,
+            right: 16,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: const Text(
+              'الحساب',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            centerTitle: true,
+            automaticallyImplyLeading: false,
+          ),
         ),
-        body: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      body: Container(
+        padding: EdgeInsets.all(16),
+        child: Column(
           children: [
-            // User card
+            // Profile Section
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.orange,
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                  ),
+                  SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('محمد علي', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                      children: [
+                        Text(
+                          'مستخدم',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         SizedBox(height: 4),
-                        Text('07800868280', style: TextStyle(color: Colors.grey, fontSize: 14)),
+                        Text(
+                          'user@example.com',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                  const CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Color(0xFFE0E0E0),
-                    child: Icon(Icons.person, size: 36, color: Colors.white),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            // Language
-            _AccountTile(
-              icon: Icons.language,
-              title: 'اللغة',
-              subtitle: 'العربية',
-              color: primaryColor,
-              trailing: const Icon(Icons.chevron_right),
-            ),
-            _AccountTile(
-              icon: Icons.map,
-              title: 'العناوين المحفوظة',
-              color: primaryColor,
-              trailing: const Icon(Icons.chevron_right),
-            ),
-            _AccountTile(
-              icon: Icons.edit,
-              title: 'تغيير الهاتف',
-              subtitle: 'تغيير رقم الهاتف الخاص بحسابك',
-              color: primaryColor,
-              trailing: const Icon(Icons.chevron_right),
-            ),
-            _AccountTile(
-              icon: Icons.notifications,
-              title: 'اعدادات الاشعارات',
-              subtitle: 'تخصيص الاشعارات الخاصة بك',
-              color: primaryColor,
-              trailing: const Icon(Icons.chevron_right),
-            ),
-            _AccountTile(
-              icon: Icons.mail_outline,
-              title: 'الشكاوى والاقتراحات',
-              color: primaryColor,
-              trailing: const Icon(Icons.chevron_right),
-            ),
-            _AccountTile(
-              icon: Icons.list_alt,
-              title: 'الاستبيانات',
-              color: primaryColor,
-              trailing: const Icon(Icons.chevron_right),
-            ),
-            _AccountTile(
-              icon: Icons.apps,
-              title: 'ايقونة التطبيق',
-              color: primaryColor,
-              trailing: const Icon(Icons.chevron_right),
-            ),
-            _AccountTile(
-              icon: Icons.share,
-              title: 'مشاركة التطبيق',
-              color: primaryColor,
-              trailing: const Icon(Icons.chevron_right),
-            ),
-            _AccountTile(
-              icon: Icons.info_outline,
-              title: 'عن طلباتي',
-              color: primaryColor,
-              trailing: const Icon(Icons.chevron_right),
-            ),
-            const SizedBox(height: 16),
-            // Logout
-            _AccountTile(
-              icon: Icons.logout,
-              title: 'تسجيل خروج',
-              color: Colors.red,
-              trailing: const Icon(Icons.chevron_right, color: Colors.red),
-            ),
-            // Delete account
-            _AccountTile(
-              icon: Icons.delete_forever,
-              title: 'حذف الحساب',
-              color: Colors.red,
-              trailing: const Icon(Icons.chevron_right, color: Colors.red),
+            SizedBox(height: 20),
+            
+            // Menu Items
+            Expanded(
+              child: ListView(
+                children: [
+                  _AccountTile(
+                    icon: Icons.person_outline,
+                    title: 'الملف الشخصي',
+                    color: Colors.blue,
+                  ),
+                  _AccountTile(
+                    icon: Icons.location_on_outlined,
+                    title: 'العناوين',
+                    color: Colors.green,
+                  ),
+                  _AccountTile(
+                    icon: Icons.payment_outlined,
+                    title: 'طرق الدفع',
+                    color: Colors.purple,
+                  ),
+                  _AccountTile(
+                    icon: Icons.notifications_outlined,
+                    title: 'الإشعارات',
+                    color: Colors.orange,
+                  ),
+                  _AccountTile(
+                    icon: Icons.help_outline,
+                    title: 'المساعدة',
+                    color: Colors.teal,
+                  ),
+                  _AccountTile(
+                    icon: Icons.settings_outlined,
+                    title: 'الإعدادات',
+                    color: Colors.grey,
+                  ),
+                  SizedBox(height: 20),
+                  _AccountTile(
+                    icon: Icons.logout,
+                    title: 'تسجيل الخروج',
+                    color: Colors.red,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -133,29 +144,53 @@ class AccountScreen extends StatelessWidget {
 class _AccountTile extends StatelessWidget {
   final IconData icon;
   final String title;
-  final String? subtitle;
   final Color color;
-  final Widget? trailing;
+
   const _AccountTile({
     required this.icon,
     required this.title,
-    this.subtitle,
     required this.color,
-    this.trailing,
   });
+
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 0),
-      leading: CircleAvatar(
-        backgroundColor: Color.fromRGBO(color.r.toInt(), color.g.toInt(), color.b.toInt(), 0.08),
-        child: Icon(icon, color: color),
+    return Container(
+      margin: EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            icon,
+            color: color,
+            size: 22,
+          ),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        trailing: Icon(
+          Icons.arrow_forward_ios,
+          size: 16,
+          color: Colors.grey[400],
+        ),
+        onTap: () {
+          // Handle tap
+        },
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        tileColor: Colors.grey[50],
       ),
-      title: Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
-      subtitle: subtitle != null ? Text(subtitle!, style: const TextStyle(fontSize: 12)) : null,
-      trailing: trailing,
-      onTap: () {},
-      shape: const Border(bottom: BorderSide(color: Color(0xFFF2F2F2))),
     );
   }
 }

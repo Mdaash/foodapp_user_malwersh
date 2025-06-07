@@ -126,6 +126,7 @@ class _StoreDetailScreenState extends State<StoreDetailScreen>
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         backgroundColor: Colors.white,
         body: NestedScrollView(
           controller: _scrollCtrl,

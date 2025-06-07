@@ -436,6 +436,7 @@ class _CouponsScreenState extends State<CouponsScreen> with SingleTickerProvider
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         backgroundColor: Colors.grey[50],
         appBar: AppBar(
           backgroundColor: Colors.white,

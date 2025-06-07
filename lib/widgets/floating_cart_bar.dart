@@ -1,6 +1,7 @@
 // lib/widgets/floating_cart_bar.dart
 
 import 'package:flutter/material.dart';
+import 'modern_cart_icon.dart';
 
 class FloatingCartBar extends StatelessWidget {
   final int count;
@@ -59,7 +60,11 @@ class FloatingCartBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (expanded) ...[
-                const Icon(Icons.shopping_cart, color: Colors.white),
+                const ModernCartIcon(
+                  color: Colors.white,
+                  size: 20,
+                  isGlassmorphic: false,
+                ),
                 const SizedBox(width: 12),
                 Text(
                   label!,
@@ -71,7 +76,11 @@ class FloatingCartBar extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
               ] else ...[
-                const Icon(Icons.shopping_cart, color: Color(0xFF00c1e8)),
+                const ModernCartIcon(
+                  color: Color(0xFF00c1e8),
+                  size: 20,
+                  isGlassmorphic: true,
+                ),
               ],
               // العدد داخل دائرة
               Container(

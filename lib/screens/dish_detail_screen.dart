@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../models/dish.dart';
 import '../models/cart_item.dart';
 import '../models/cart_model.dart';
+import '../widgets/modern_cart_icon.dart';
 import 'cart_screen.dart';
 
 class DishDetailScreen extends StatefulWidget {
@@ -90,7 +91,11 @@ class _DishDetailScreenState extends State<DishDetailScreen>
                     shape: BoxShape.circle,
                   ),
                 ),
-                const Icon(Icons.shopping_cart, size: 32, color: Colors.grey),
+                const ModernCartIcon(
+                  color: Colors.grey,
+                  size: 32,
+                  isGlassmorphic: false,
+                ),
                 const Positioned(
                   right: 0, top: 0,
                   child: Icon(Icons.close, size: 20, color: Colors.redAccent),
@@ -174,6 +179,7 @@ class _DishDetailScreenState extends State<DishDetailScreen>
     return Directionality(
       textDirection: ui.TextDirection.rtl,
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         backgroundColor: Colors.white,
         body: ListView(
           padding: EdgeInsets.zero,

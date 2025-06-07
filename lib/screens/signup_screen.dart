@@ -67,10 +67,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
           title: const Text("إنشاء حساب جديد"),
           backgroundColor: const Color(0xFF00c1e8),
           foregroundColor: Colors.white,
+          elevation: 0,
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),

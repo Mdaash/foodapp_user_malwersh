@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/cart_model.dart';
 import '../screens/cart_screen.dart';
+import 'modern_cart_icon.dart';
 
 class AnimatedCartBar extends StatefulWidget {
   final String storeName;
@@ -139,9 +140,14 @@ class _AnimatedCartBarState extends State<AnimatedCartBar>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(right: 20),
-            child: Icon(Icons.shopping_cart, color: Colors.white, size: 28),
+          Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: ModernCartIcon(
+              color: Colors.white,
+              size: 28,
+              hasGlowEffect: true,
+              isGlassmorphic: false,
+            ),
           ),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -205,27 +211,11 @@ class _AnimatedCartBarState extends State<AnimatedCartBar>
       child: Stack(
         alignment: Alignment.center,
         children: [
-          const Icon(Icons.shopping_cart, color: Colors.white, size: 28),
-          Positioned(
-            top: 6,
-            right: 6,
-            child: Container(
-              width: 20,
-              height: 20,
-              alignment: Alignment.center,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: Text(
-                '$count',
-                style: TextStyle(
-                  color: _primaryPink,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+          ModernCartCircleIcon(
+            backgroundColor: _primaryPink,
+            iconColor: Colors.white,
+            size: 56,
+            badgeCount: count,
           ),
         ],
       ),

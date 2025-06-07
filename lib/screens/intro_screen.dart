@@ -44,9 +44,12 @@ class _IntroScreenState extends State<IntroScreen> {
     final screenWidth  = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: const Color(0xFF00c1e8),
-      body: Column(
-        children: [
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
           const SizedBox(height: 60),
           const Text(
             "زاد",
@@ -184,6 +187,7 @@ class _IntroScreenState extends State<IntroScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

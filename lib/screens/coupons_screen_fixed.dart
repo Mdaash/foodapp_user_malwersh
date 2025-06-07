@@ -307,7 +307,7 @@ class _CouponsScreenState extends State<CouponsScreen> with SingleTickerProvider
                       _buildDetailItem(
                         'الحد الأدنى للطلب',
                         '${coupon['minOrder'] ?? 0} ريال',
-                        Icons.shopping_cart,
+                        Icons.shopping_bag_rounded,
                         const Color(0xFF7C4DFF),
                       ),
                       const SizedBox(height: 16),
@@ -748,6 +748,7 @@ class _CouponsScreenState extends State<CouponsScreen> with SingleTickerProvider
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         backgroundColor: const Color(0xFFF8FAFF),
         appBar: AppBar(
           backgroundColor: Colors.transparent,

@@ -53,9 +53,9 @@ class GlassmorphicAppBar extends StatelessWidget implements PreferredSizeWidget 
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.white.withOpacity(0.95),
-                Colors.white.withOpacity(0.85),
-                Colors.blue.withOpacity(0.1),
+                Colors.white.withValues(alpha: 0.95),
+                Colors.white.withValues(alpha: 0.85),
+                Colors.blue.withValues(alpha: 0.1),
               ],
               stops: const [0.0, 0.7, 1.0],
             ),
@@ -63,18 +63,18 @@ class GlassmorphicAppBar extends StatelessWidget implements PreferredSizeWidget 
               bottom: Radius.circular(25),
             ),
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 5),
                 spreadRadius: 0,
               ),
               BoxShadow(
-                color: const Color(0xFF00c1e8).withOpacity(0.1),
+                color: const Color(0xFF00c1e8).withValues(alpha: 0.1),
                 blurRadius: 30,
                 offset: const Offset(0, 10),
                 spreadRadius: -5,
@@ -163,7 +163,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: (gradientColors?.first ?? const Color(0xFF00c1e8)).withOpacity(0.3),
+            color: (gradientColors?.first ?? const Color(0xFF00c1e8)).withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
             spreadRadius: 0,
@@ -236,22 +236,22 @@ class NeonAppBar extends StatelessWidget implements PreferredSizeWidget {
     
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.9),
+        color: Colors.black.withValues(alpha: 0.9),
         borderRadius: const BorderRadius.vertical(
           bottom: Radius.circular(20),
         ),
         border: Border.all(
-          color: glowColor.withOpacity(0.5),
+          color: glowColor.withValues(alpha: 0.5),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: glowColor.withOpacity(0.5),
+            color: glowColor.withValues(alpha: 0.5),
             blurRadius: 20,
             spreadRadius: 2,
           ),
           BoxShadow(
-            color: glowColor.withOpacity(0.3),
+            color: glowColor.withValues(alpha: 0.3),
             blurRadius: 40,
             spreadRadius: 5,
           ),
@@ -265,7 +265,7 @@ class NeonAppBar extends StatelessWidget implements PreferredSizeWidget {
           title: title != null
               ? ShaderMask(
                   shaderCallback: (bounds) => LinearGradient(
-                    colors: [glowColor, glowColor.withOpacity(0.7)],
+                    colors: [glowColor, glowColor.withValues(alpha: 0.7)],
                   ).createShader(bounds),
                   child: Text(
                     title!,

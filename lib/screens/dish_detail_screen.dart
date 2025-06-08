@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../models/dish.dart';
 import '../models/cart_item.dart';
 import '../models/cart_model.dart';
+import '../models/favorites_model.dart';
 import '../widgets/modern_cart_icon.dart';
 import 'cart_screen.dart';
 
@@ -34,8 +35,6 @@ class _DishDetailScreenState extends State<DishDetailScreen>
     with SingleTickerProviderStateMixin {
   static const _primaryPink = ui.Color(0xFF00C1E8);
 
-  bool _isFav = false;
-
   late TabController _tabController;
   final Map<String, Set<String>> _selectedOptions = {};
   int _quantity = 1;
@@ -45,13 +44,10 @@ class _DishDetailScreenState extends State<DishDetailScreen>
   @override
   void initState() {
     super.initState();
-    _isFav = widget.isInitiallyFav;
     _tabController = TabController(length: 2, vsync: this);
     for (var g in widget.dish.optionGroups) {
       _selectedOptions[g.id] = <String>{};
     }
-    // يمكنك هنا تحميل حالة التفضيل من مزود أو قاعدة بيانات إذا أردت
-    // حالياً سنبقيها محلياً فقط
   }
 
   @override
@@ -131,7 +127,10 @@ class _DishDetailScreenState extends State<DishDetailScreen>
                         specialInstructions: _specialInstructions,
                       ));
                       Navigator.pop(dialogContext); // يغلق الـ Dialog فقط
-                      if (mounted) Navigator.pop(context, _isFav); // يغلق شاشة الطبق
+                      if (mounted) {
+                        final favoritesModel = Provider.of<FavoritesModel>(context, listen: false);
+                        Navigator.pop(context, favoritesModel.isDishFavorite(widget.dish.id)); // يغلق شاشة الطبق
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _primaryPink,
@@ -202,12 +201,26 @@ class _DishDetailScreenState extends State<DishDetailScreen>
                 ),
                 Positioned(
                   top: 24, left: 16,
-                  child: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: IconButton(
-                      icon: Icon(_isFav ? Icons.favorite : Icons.favorite_border, color: _primaryPink),
-                      onPressed: () => setState(() => _isFav = !_isFav),
-                    ),
+                  child: Consumer<FavoritesModel>(
+                    builder: (context, favoritesModel, child) {
+                      final isFavorite = favoritesModel.isDishFavorite(widget.dish.id);
+                      return CircleAvatar(
+                        backgroundColor: Colors.white,
+                        child: IconButton(
+                          icon: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border, 
+                            color: _primaryPink
+                          ),
+                          onPressed: () {
+                            if (isFavorite) {
+                              favoritesModel.removeDishFavorite(widget.dish.id);
+                            } else {
+                              favoritesModel.addDishFavorite(widget.dish.id);
+                            }
+                          },
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
@@ -329,7 +342,10 @@ class _DishDetailScreenState extends State<DishDetailScreen>
                   selectedOptions: _selectedOptions,
                   specialInstructions: _specialInstructions,
                 ));
-                if (mounted) Navigator.pop(context, _isFav);
+                if (mounted) {
+                  final favoritesModel = Provider.of<FavoritesModel>(context, listen: false);
+                  Navigator.pop(context, favoritesModel.isDishFavorite(widget.dish.id));
+                }
               },
               child: Text(
                 'إضافة إلى الطلب • ${_calculateTotal().toStringAsFixed(2)} ر.س',

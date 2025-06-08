@@ -6,7 +6,7 @@ class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key, this.onBack});
 
   @override
-  _AccountScreenState createState() => _AccountScreenState();
+  State<AccountScreen> createState() => _AccountScreenState();
 }
 
 class _AccountScreenState extends State<AccountScreen> {
@@ -162,7 +162,7 @@ class _AccountTile extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(

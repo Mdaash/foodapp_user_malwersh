@@ -150,7 +150,7 @@ class _AccountTile extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 0),
       leading: CircleAvatar(
-        backgroundColor: Color.fromRGBO(color.red, color.green, color.blue, 0.08),
+        backgroundColor: color.withValues(alpha: 0.08),
         child: Icon(icon, color: color),
       ),
       title: Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold)),

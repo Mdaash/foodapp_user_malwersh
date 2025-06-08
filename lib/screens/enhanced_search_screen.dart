@@ -94,7 +94,7 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
         });
       }
     } catch (e) {
-      print('خطأ في تحميل البحث الشائع: $e');
+      debugPrint('خطأ في تحميل البحث الشائع: $e');
     }
   }
 
@@ -193,7 +193,7 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
         searchService.logSearchEvent(query, _searchResults.length);
       }
     } catch (e) {
-      print('خطأ في البحث المتقدم: $e');
+      debugPrint('خطأ في البحث المتقدم: $e');
       if (mounted) {
         setState(() {
           _isLoadingResults = false;
@@ -245,7 +245,7 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -267,15 +267,15 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    const Color(0xFF00c1e8).withOpacity(0.1),
-                    const Color(0xFF0099d4).withOpacity(0.1),
+                    const Color(0xFF00c1e8).withValues(alpha: 0.1),
+                    const Color(0xFF0099d4).withValues(alpha: 0.1),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(
-                  color: const Color(0xFF00c1e8).withOpacity(0.3),
+                  color: const Color(0xFF00c1e8).withValues(alpha: 0.3),
                   width: 1.5,
                 ),
               ),
@@ -333,7 +333,7 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(const Color(0xFF00c1e8)),
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00c1e8)),
             ),
             SizedBox(height: 16),
             Text(
@@ -362,7 +362,7 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -373,9 +373,9 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF00c1e8).withOpacity(0.1),
+                    color: const Color(0xFF00c1e8).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFF00c1e8).withOpacity(0.3)),
+                    border: Border.all(color: const Color(0xFF00c1e8).withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -453,7 +453,7 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -516,7 +516,7 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
                           Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF00c1e8).withOpacity(0.1),
+                              color: const Color(0xFF00c1e8).withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Icon(
@@ -659,7 +659,7 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF00c1e8).withOpacity(0.1),
+                color: const Color(0xFF00c1e8).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -733,13 +733,13 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFF00c1e8).withOpacity(0.1),
+                color: const Color(0xFF00c1e8).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.search_off,
                 size: 64,
-                color: const Color(0xFF00c1e8).withOpacity(0.7),
+                color: const Color(0xFF00c1e8).withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 24),
@@ -803,7 +803,7 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF00c1e8).withOpacity(0.1),
+            color: const Color(0xFF00c1e8).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(
@@ -831,7 +831,7 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
       ),
       child: ListTile(
         leading: Icon(
@@ -885,7 +885,7 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
       case SearchResultType.dish:
         return Colors.green[50]!;
       case SearchResultType.offer:
-        return const Color(0xFF00c1e8).withOpacity(0.1);
+        return const Color(0xFF00c1e8).withValues(alpha: 0.1);
       case SearchResultType.product:
         return Colors.purple[50]!;
       case SearchResultType.category:

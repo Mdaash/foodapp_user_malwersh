@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/store.dart';
 import '../models/dish.dart';
@@ -58,7 +59,7 @@ class SearchService {
         throw Exception('فشل في البحث: ${response.statusCode}');
       }
     } catch (e) {
-      print('خطأ في البحث: $e');
+      debugPrint('خطأ في البحث: $e');
       return [];
     }
   }
@@ -147,7 +148,7 @@ class SearchService {
         return List<String>.from(data['popular_searches']);
       }
     } catch (e) {
-      print('خطأ في جلب البحث الشائع: $e');
+      debugPrint('خطأ في جلب البحث الشائع: $e');
     }
 
     // قائمة افتراضية في حالة الفشل
@@ -182,7 +183,7 @@ class SearchService {
         return List<String>.from(data['suggestions']);
       }
     } catch (e) {
-      print('خطأ في جلب اقتراحات البحث: $e');
+      debugPrint('خطأ في جلب اقتراحات البحث: $e');
     }
 
     return [];
@@ -210,7 +211,7 @@ class SearchService {
       ).timeout(const Duration(seconds: 3));
     } catch (e) {
       // تجاهل الأخطاء في الإحصائيات
-      print('خطأ في تسجيل إحصائيات البحث: $e');
+      debugPrint('خطأ في تسجيل إحصائيات البحث: $e');
     }
   }
 
@@ -287,7 +288,7 @@ class SearchService {
         }
       }
     } catch (e) {
-      print('خطأ في البحث العام من الباك إند: $e');
+      debugPrint('خطأ في البحث العام من الباك إند: $e');
     }
 
     // ترتيب النتائج حسب الصلة
@@ -590,7 +591,7 @@ class SearchService {
         }
       }
     } catch (e) {
-      print('خطأ في البحث من الباك إند: $e');
+      debugPrint('خطأ في البحث من الباك إند: $e');
     }
 
     // ترتيب النتائج حسب الصلة
@@ -781,7 +782,7 @@ class SearchService {
         throw Exception('فشل في البحث الجغرافي: ${response.statusCode}');
       }
     } catch (e) {
-      print('خطأ في البحث الجغرافي: $e');
+      debugPrint('خطأ في البحث الجغرافي: $e');
       return [];
     }
   }
@@ -847,7 +848,7 @@ class SearchService {
         throw Exception('فشل في البحث المتقدم: ${response.statusCode}');
       }
     } catch (e) {
-      print('خطأ في البحث المتقدم: $e');
+      debugPrint('خطأ في البحث المتقدم: $e');
       return [];
     }
   }
@@ -863,7 +864,7 @@ class SearchService {
           final store = Store.fromJson(storeJson);
           results.add(SearchResult.fromStore(store));
         } catch (e) {
-          print('خطأ في تحليل بيانات المتجر: $e');
+          debugPrint('خطأ في تحليل بيانات المتجر: $e');
         }
       }
     }
@@ -877,7 +878,7 @@ class SearchService {
           final storeName = dishData['store_name'];
           results.add(SearchResult.fromDish(dish, storeId, storeName));
         } catch (e) {
-          print('خطأ في تحليل بيانات الطبق: $e');
+          debugPrint('خطأ في تحليل بيانات الطبق: $e');
         }
       }
     }
@@ -890,7 +891,7 @@ class SearchService {
           final storeName = productData['store_name'];
           results.add(SearchResult.fromProduct(product, storeName));
         } catch (e) {
-          print('خطأ في تحليل بيانات المنتج: $e');
+          debugPrint('خطأ في تحليل بيانات المنتج: $e');
         }
       }
     }
@@ -902,7 +903,7 @@ class SearchService {
           final offer = Offer.fromJson(offerJson);
           results.add(SearchResult.fromOffer(offer));
         } catch (e) {
-          print('خطأ في تحليل بيانات العرض: $e');
+          debugPrint('خطأ في تحليل بيانات العرض: $e');
         }
       }
     }
@@ -923,7 +924,7 @@ class SearchService {
       // }
       return null;
     } catch (e) {
-      print('خطأ في البحث الصوتي: $e');
+      debugPrint('خطأ في البحث الصوتي: $e');
       return null;
     }
   }
@@ -962,7 +963,7 @@ class SearchService {
         return List<String>.from(data['suggestions']);
       }
     } catch (e) {
-      print('خطأ في جلب الاقتراحات الذكية: $e');
+      debugPrint('خطأ في جلب الاقتراحات الذكية: $e');
     }
 
     // اقتراحات محلية بسيطة كاحتياطي
@@ -1017,7 +1018,7 @@ class SearchService {
         return results;
       }
     } catch (e) {
-      print('خطأ في البحث في الفئات: $e');
+      debugPrint('خطأ في البحث في الفئات: $e');
     }
     
     return [];
@@ -1046,7 +1047,7 @@ class SearchService {
       ).timeout(const Duration(seconds: 3));
     } catch (e) {
       // تجاهل الأخطاء في الإحصائيات
-      print('خطأ في تسجيل تفاعل المستخدم: $e');
+      debugPrint('خطأ في تسجيل تفاعل المستخدم: $e');
     }
   }
 
@@ -1077,7 +1078,7 @@ class SearchService {
         return List<String>.from(data['trending_searches']);
       }
     } catch (e) {
-      print('خطأ في جلب الاتجاهات: $e');
+      debugPrint('خطأ في جلب الاتجاهات: $e');
     }
 
     // قائمة افتراضية للاتجاهات
@@ -1168,12 +1169,18 @@ class SearchService {
     final normalizedSubtitle = _normalizeSearchText(result.subtitle);
     
     // التطابق المباشر في العنوان (نقاط عالية)
-    if (normalizedTitle == normalizedQuery) score += 100;
-    else if (normalizedTitle.startsWith(normalizedQuery)) score += 80;
-    else if (normalizedTitle.contains(normalizedQuery)) score += 60;
+    if (normalizedTitle == normalizedQuery) {
+      score += 100;
+    } else if (normalizedTitle.startsWith(normalizedQuery)) {
+      score += 80;
+    } else if (normalizedTitle.contains(normalizedQuery)) {
+      score += 60;
+    }
     
     // التطابق في العنوان الفرعي
-    if (normalizedSubtitle.contains(normalizedQuery)) score += 30;
+    if (normalizedSubtitle.contains(normalizedQuery)) {
+      score += 30;
+    }
     
     // نقاط إضافية حسب نوع النتيجة
     switch (result.type) {

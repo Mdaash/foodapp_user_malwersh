@@ -3,9 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';          // ← لإعدادات شريط الحالة
 import 'package:provider/provider.dart';          // ← استيراد provider
+import 'package:flutter_localizations/flutter_localizations.dart'; // ← لدعم الاتجاه العربي
 import 'models/cart_model.dart';                  // ← نموذج العربة
 import 'models/favorites_model.dart';             // ← نموذج المفضلة
-import 'screens/welcome_screen.dart';
+import 'screens/home_screen.dart';                // ← استيراد HomeScreen للاختبار
 
 void main() {
   runApp(
@@ -48,8 +49,22 @@ class _FoodAppUserState extends State<FoodAppUser> {
     return MaterialApp(
       title: 'FoodApp User',
       debugShowCheckedModeBanner: false,
+      // إعداد الاتجاه العربي (RTL)
+      locale: const Locale('ar', 'AE'), // العربية (الإمارات)
+      supportedLocales: const [
+        Locale('ar', 'AE'), // العربية
+        Locale('en', 'US'), // الإنجليزية
+      ],
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
+        // إجبار الاتجاه من اليمين إلى اليسار
+        useMaterial3: true,
+        fontFamily: 'Cairo', // يمكن إضافة خط عربي إذا كان متاحاً
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -58,8 +73,19 @@ class _FoodAppUserState extends State<FoodAppUser> {
             statusBarIconBrightness: Brightness.dark,
           ),
         ),
+        // إعداد اتجاه النص الافتراضي
+        textTheme: const TextTheme().apply(
+          fontFamily: 'Cairo',
+        ),
       ),
-      home: const WelcomeScreen(),
+      // بناء التطبيق مع اتجاه RTL
+      builder: (context, child) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: child!,
+        );
+      },
+      home: const HomeScreen(), // للاختبار المباشر للفئات
     );
   }
 }

@@ -178,8 +178,8 @@ Widget buildRewardsAndCouponsSection(BuildContext context) {
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
                                 colors: [
-                                  Color(0xFFFF6B35),
-                                  Color(0xFFFF8E53),
+                                  Color(0xFF00c1e8),
+                                  Color(0xFF0099B8),
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
@@ -187,7 +187,7 @@ Widget buildRewardsAndCouponsSection(BuildContext context) {
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.orange.withValues(alpha: 0.3),
+                                  color: Color(0xFF00c1e8).withValues(alpha: 0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -301,8 +301,8 @@ Widget buildRewardsAndCouponsSection(BuildContext context) {
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
                                 colors: [
-                                  Color(0xFFFFD700),
-                                  Color(0xFFFFA500),
+                                  Color(0xFF00c1e8),
+                                  Color(0xFF0099B8),
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,

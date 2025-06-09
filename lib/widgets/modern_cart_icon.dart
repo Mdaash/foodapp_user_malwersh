@@ -107,13 +107,13 @@ class ModernCartIcon extends StatelessWidget {
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFDF1067), Color(0xFFFF6B6B)],
+                  colors: [Color(0xFF00c1e8), Color(0xFF0099B8)],
                 ),
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 1.5),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFDF1067).withValues(alpha: 0.4),
+                    color: const Color(0xFF00c1e8).withValues(alpha: 0.4),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -249,13 +249,13 @@ class ModernCartCircleIcon extends StatelessWidget {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFDF1067), Color(0xFFFF6B6B)],
+                  colors: [Color(0xFF00c1e8), Color(0xFF0099B8)],
                 ),
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFDF1067).withValues(alpha: 0.4),
+                    color: const Color(0xFF00c1e8).withValues(alpha: 0.4),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),

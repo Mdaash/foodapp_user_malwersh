@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:foodapp_user/screens/home_screen_updated.dart';
+import 'package:foodapp_user/screens/home_screen.dart';
 import 'package:foodapp_user/models/cart_model.dart';
 import 'package:foodapp_user/models/favorites_model.dart';
 
@@ -18,7 +18,7 @@ void main() {
           child: MaterialApp(
             home: Directionality(
               textDirection: TextDirection.rtl,
-              child: HomeScreenUpdated(),
+              child: HomeScreen(),
             ),
           ),
         ),
@@ -49,7 +49,7 @@ void main() {
           child: MaterialApp(
             home: Directionality(
               textDirection: TextDirection.rtl,
-              child: HomeScreenUpdated(),
+              child: HomeScreen(),
             ),
           ),
         ),
@@ -80,7 +80,7 @@ void main() {
           child: MaterialApp(
             home: Directionality(
               textDirection: TextDirection.rtl,
-              child: HomeScreenUpdated(),
+              child: HomeScreen(),
             ),
           ),
         ),
@@ -113,7 +113,7 @@ void main() {
           child: MaterialApp(
             home: Directionality(
               textDirection: TextDirection.rtl,
-              child: HomeScreenUpdated(),
+              child: HomeScreen(),
             ),
           ),
         ),
@@ -147,7 +147,7 @@ void main() {
           child: MaterialApp(
             home: Directionality(
               textDirection: TextDirection.rtl,
-              child: HomeScreenUpdated(),
+              child: HomeScreen(),
             ),
           ),
         ),

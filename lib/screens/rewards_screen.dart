@@ -32,7 +32,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
       'title': 'وجبة مجانية صغيرة',
       'points': 250,
       'icon': Icons.fastfood,
-      'color': Colors.orange,
+      'color': Color(0xFF00c1e8),
       'description': 'احصل على وجبة مجانية من قائمة الوجبات الصغيرة',
     },
     {

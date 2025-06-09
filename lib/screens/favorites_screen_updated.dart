@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/store.dart';
 import '../models/favorites_model.dart';
-import 'store_detail_screen_updated.dart';
+import 'store_detail_screen.dart';
 
 class FavoritesScreenUpdated extends StatefulWidget {
   final List<Store> stores;
@@ -193,7 +193,7 @@ class _FavoritesScreenUpdatedState extends State<FavoritesScreenUpdated>
                             'العروض',
                             favorites.favoriteOfferIds.length.toString(),
                             Icons.local_offer,
-                            const Color(0xFFFF6B35),
+                            const Color(0xFF00c1e8),
                           ),
                         ),
                       ],
@@ -347,7 +347,13 @@ class _FavoritesScreenUpdatedState extends State<FavoritesScreenUpdated>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => StoreDetailScreenUpdated(store: store),
+                builder: (context) => StoreDetailScreen(
+                  store: store,
+                  favoriteStoreIds: context.read<FavoritesModel>().favoriteStoreIds,
+                  onFavoriteToggle: (isFavorite) {
+                    context.read<FavoritesModel>().toggleStoreFavorite(store.id);
+                  },
+                ),
               ),
             );
           },
@@ -603,7 +609,7 @@ class _FavoritesScreenUpdatedState extends State<FavoritesScreenUpdated>
         icon: Icons.local_offer,
         title: 'لا يوجد عروض مفضلة بعد',
         subtitle: 'ابدأ بإضافة عروضك المفضلة',
-        color: const Color(0xFFFF6B35),
+        color: const Color(0xFF00c1e8),
       );
     }
 
@@ -649,8 +655,8 @@ class _FavoritesScreenUpdatedState extends State<FavoritesScreenUpdated>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        const Color(0xFFFF6B35).withValues(alpha: 0.2),
-                        const Color(0xFFFF6B35).withValues(alpha: 0.1),
+                        const Color(0xFF00c1e8).withValues(alpha: 0.2),
+                        const Color(0xFF00c1e8).withValues(alpha: 0.1),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -659,7 +665,7 @@ class _FavoritesScreenUpdatedState extends State<FavoritesScreenUpdated>
                   ),
                   child: const Icon(
                     Icons.local_offer,
-                    color: Color(0xFFFF6B35),
+                    color: Color(0xFF00c1e8),
                     size: 32,
                   ),
                 ),
@@ -694,13 +700,13 @@ class _FavoritesScreenUpdatedState extends State<FavoritesScreenUpdated>
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF6B35).withValues(alpha: 0.1),
+                          color: const Color(0xFF00c1e8).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Text(
                           'عرض نشط',
                           style: TextStyle(
-                            color: Color(0xFFFF6B35),
+                            color: Color(0xFF00c1e8),
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),

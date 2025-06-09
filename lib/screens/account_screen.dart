@@ -56,7 +56,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 children: [
                   CircleAvatar(
                     radius: 30,
-                    backgroundColor: Colors.orange,
+                    backgroundColor: Color(0xFF00c1e8),
                     child: Icon(
                       Icons.person,
                       color: Colors.white,
@@ -113,7 +113,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   _AccountTile(
                     icon: Icons.notifications_outlined,
                     title: 'الإشعارات',
-                    color: Colors.orange,
+                    color: Color(0xFF00c1e8),
                   ),
                   _AccountTile(
                     icon: Icons.help_outline,

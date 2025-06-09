@@ -146,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const CartScreen()),
                   ),
-                  backgroundColor: Colors.orange,
+                  backgroundColor: Color(0xFF00c1e8),
                   icon: const Icon(Icons.shopping_cart, color: Colors.white),
                   label: Text(
                     'السلة (${cartModel.itemCount})',
@@ -168,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
       toolbarHeight: 80,
       title: Row(
         children: [
-          Icon(Icons.location_on, color: Colors.orange, size: 28),
+          Icon(Icons.location_on, color: Color(0xFF00c1e8), size: 28),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
@@ -294,14 +294,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildCategoriesSection() {
     // قائمة الفئات مع صورها وألوانها المخصصة
     final categories = [
-      {"name": "المطاعم", "image": "assets/icons/cat_rest.png", "color": const Color(0xFFFF6B6B)},
+      {"name": "المطاعم", "image": "assets/icons/cat_rest.png", "color": const Color(0xFF00c1e8)},
       {"name": "سوبرماركت", "image": "assets/icons/cat_supermarket.png", "color": const Color(0xFF00B894)},
       {"name": "الوجبات السريعة", "image": "assets/icons/cat_fast.png", "color": const Color(0xFF4ECDC4)},
       {"name": "الفطور", "image": "assets/icons/cat_break.png", "color": const Color(0xFF45B7D1)},
       {"name": "البقالة", "image": "assets/icons/cat_groce.png", "color": const Color(0xFF96CEB4)},
-      {"name": "اللحوم", "image": "assets/icons/cat_meat.png", "color": const Color(0xFFFF9F43)},
+      {"name": "اللحوم", "image": "assets/icons/cat_meat.png", "color": const Color(0xFF00c1e8)},
       {"name": "حلويات ومثلجات", "image": "assets/icons/cat_dessert.png", "color": const Color(0xFFE17055)},
-      {"name": "المشروبات", "image": "assets/icons/cat_juice.png", "color": const Color(0xFFFD79A8)},
+      {"name": "المشروبات", "image": "assets/icons/cat_juice.png", "color": const Color(0xFF00c1e8)},
       {"name": "الزهور", "image": "assets/icons/cat_flowers.png", "color": const Color(0xFF74B9FF)},
     ];
 
@@ -434,15 +434,15 @@ class _HomeScreenState extends State<HomeScreen> {
           return Container(
             margin: const EdgeInsets.only(right: 8),
             child: FilterChip(
-              avatar: Icon(filterIcon, size: 18, color: Colors.orange),
+              avatar: Icon(filterIcon, size: 18, color: Color(0xFF00c1e8)),
               label: Text(
                 filterName,
                 style: const TextStyle(fontSize: 12),
               ),
               onSelected: (bool value) {},
               backgroundColor: Colors.grey[100],
-              selectedColor: Colors.orange.withValues(alpha: 0.2),
-              checkmarkColor: Colors.orange,
+              selectedColor: Color(0xFF00c1e8).withValues(alpha: 0.2),
+              checkmarkColor: Color(0xFF00c1e8),
             ),
           );
         },
@@ -685,7 +685,7 @@ class _HomeScreenState extends State<HomeScreen> {
               currentIndex: _selectedTabIndex,
               onTap: (index) => setState(() => _selectedTabIndex = index),
               type: BottomNavigationBarType.fixed,
-              selectedItemColor: Colors.orange,
+              selectedItemColor: Color(0xFF00c1e8),
               unselectedItemColor: Colors.grey,
               backgroundColor: Colors.white,
               elevation: 8,

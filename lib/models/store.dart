@@ -15,6 +15,12 @@ class Store {
   final String time;      // وقت التوصيل/العمل
   final String address;   // عنوان المتجر
 
+  // خصائص إضافية للتوافق مع الشاشات
+  String get imageUrl => image;  // alias للصورة الرئيسية
+  double get ratingValue => double.tryParse(rating) ?? 0.0;  // التقييم كرقم
+  String get deliveryTime => time;  // وقت التوصيل
+  String get deliveryFee => fee;    // رسوم التوصيل
+
   // هذه الحقول كانت مفقودة في الكونستركتور
   final String? promo;
   final String? tag;

@@ -14,6 +14,9 @@ class CartModel extends ChangeNotifier {
   double get totalAmount =>
       _items.fold(0.0, (sum, item) => sum + item.totalPrice);
 
+  /// عدد العناصر في السلة
+  int get itemCount => _items.fold(0, (sum, item) => sum + item.quantity);
+
   /// المعرّف الحالي للمتجر (null إذا كانت السلة فارغة)
   String? get currentStoreId =>
       _items.isEmpty ? null : _items.first.storeId;

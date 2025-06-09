@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:foodapp_user/services/search_service.dart';
-import 'package:foodapp_user/models/store.dart';
 
 void main() {
   group('Search Service Tests', () {

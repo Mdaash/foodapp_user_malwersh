@@ -1,13 +1,15 @@
 // test_search.dart
-import 'lib/screens/search_screen.dart';
+import 'lib/screens/enhanced_search_screen_updated.dart';
 import 'lib/models/store.dart';
 
 void main() {
-  // Test if SearchScreen is accessible
-  final testScreen = SearchScreen(
+  // Test if EnhancedSearchScreenUpdated is accessible
+  final testScreen = EnhancedSearchScreenUpdated(
     stores: <Store>[],
-    favoriteStoreIds: <String>{},
-    onToggleStoreFavorite: (id) {},
   );
-  print('SearchScreen created successfully');
+  
+  // Use the widget to avoid unused variable warning
+  assert(testScreen.runtimeType == EnhancedSearchScreenUpdated);
+  
+  // Test passed - widget can be instantiated
 }

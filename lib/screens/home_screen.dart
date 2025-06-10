@@ -15,6 +15,7 @@ import 'package:foodapp_user/models/favorites_model.dart';
 import 'package:foodapp_user/screens/rewards_screen.dart';
 import 'package:foodapp_user/screens/coupons_screen.dart';
 import 'package:foodapp_user/services/user_service.dart';
+import 'package:foodapp_user/screens/enhanced_search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -285,7 +286,18 @@ class _HomeScreenState extends State<HomeScreen> {
       margin: const EdgeInsets.all(16),
       child: GestureDetector(
         onTap: () {
-          // Navigate to search screen
+          // التنقل لشاشة البحث المحسنة
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => EnhancedSearchScreen(
+                stores: _stores,
+                favoriteStoreIds: context.read<FavoritesModel>().favoriteStoreIds,
+                onToggleStoreFavorite: (storeId) {
+                  context.read<FavoritesModel>().toggleStoreFavorite(storeId);
+                },
+              ),
+            ),
+          );
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

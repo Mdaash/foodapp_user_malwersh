@@ -41,6 +41,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
   late TextEditingController _phoneController;
   late TextEditingController _couponController;
   String _selectedPayment = 'cash';
+  String _couponCode = '';
   int _pointsToUse = 0;
   final int _availablePoints = 125; // نقاط المستخدم المتاحة
   double _discount = 0.0;

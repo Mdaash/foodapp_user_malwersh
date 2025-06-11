@@ -23,8 +23,13 @@ class CartModel extends ChangeNotifier {
 
   /// إضافة عنصر مع التحقق من المطعم
   void addItem(CartItem newItem) {
+    print('Debug CartModel: محاولة إضافة عنصر ${newItem.dish.name}');
+    print('Debug CartModel: storeId الحالي: $currentStoreId');
+    print('Debug CartModel: storeId الجديد: ${newItem.storeId}');
+    
     // إذا السلة ليست فارغة ومطعم الطلب الجديد مختلف
     if (currentStoreId != null && currentStoreId != newItem.storeId) {
+      print('Debug CartModel: متجر مختلف - لن يتم إضافة العنصر');
       // لا نفعل شيء هنا، بل نوفّر التحقق في واجهة المستخدم
       return;
     }
@@ -35,6 +40,7 @@ class CartModel extends ChangeNotifier {
             .equals(item.selectedOptions, newItem.selectedOptions));
 
     if (existing != null) {
+      print('Debug CartModel: العنصر موجود بالفعل - تحديث الكمية');
       final idx = _items.indexOf(existing);
       final updatedQuantity = existing.quantity + newItem.quantity;
       final unitPrice = existing.unitPrice;
@@ -48,9 +54,13 @@ class CartModel extends ChangeNotifier {
         specialInstructions: existing.specialInstructions,
       );
     } else {
+      print('Debug CartModel: إضافة عنصر جديد');
       _items.add(newItem);
     }
 
+    print('Debug CartModel: عدد العناصر النهائي: ${_items.length}');
+    print('Debug CartModel: المجموع النهائي: $totalAmount');
+    print('Debug CartModel: استدعاء notifyListeners()');
     notifyListeners();
   }
 

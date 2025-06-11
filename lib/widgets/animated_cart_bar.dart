@@ -4,17 +4,22 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/cart_model.dart';
+import '../models/store.dart';
 import '../screens/cart_screen.dart';
 import 'modern_cart_icon.dart';
 
 class AnimatedCartBar extends StatefulWidget {
   final String storeName;
   final bool isExpanded;
+  final String? storeId; // إضافة معرف المطعم
+  final List<Store>? stores; // إضافة قائمة المتاجر
 
   const AnimatedCartBar({
     super.key,
     required this.storeName,
     required this.isExpanded,
+    this.storeId,
+    this.stores,
   });
 
   @override
@@ -110,7 +115,11 @@ class _AnimatedCartBarState extends State<AnimatedCartBar>
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => CartScreen(storeName: widget.storeName),
+                  builder: (_) => CartScreen(
+                    storeName: widget.storeName,
+                    storeId: widget.storeId,
+                    stores: widget.stores,
+                  ),
                 ),
               );
             },

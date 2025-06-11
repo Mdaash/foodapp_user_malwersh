@@ -178,6 +178,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen>
               child: AnimatedCartBar(
                 storeName: widget.store.name,
                 isExpanded: true,
+                storeId: widget.store.id,
+                stores: [widget.store], // تمرير المطعم الحالي
               ),
             );
           },

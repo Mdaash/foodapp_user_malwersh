@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:foodapp_user/models/store.dart';
+import 'package:foodapp_user/models/menu_item.dart';
 import 'package:foodapp_user/models/cart_model.dart';
 import 'package:foodapp_user/screens/store_detail_screen.dart';
 import 'package:foodapp_user/screens/cart_screen.dart';
@@ -135,9 +136,9 @@ class _HomeScreenState extends State<HomeScreen> {
         sponsored: isSponsored, // المتاجر المرعية (الجديدة)
         combos: [],
         sandwiches: [],
-        drinks: [],
-        extras: [],
-        specialties: [],
+        drinks: _generateDrinks(storeId),
+        extras: _generateExtras(storeId),
+        specialties: _generateSpecialties(storeId),
       );
     });
 
@@ -174,9 +175,9 @@ class _HomeScreenState extends State<HomeScreen> {
         sponsored: isSponsored,
         combos: [],
         sandwiches: [],
-        drinks: [],
-        extras: [],
-        specialties: [],
+        drinks: _generateDrinks(storeId),
+        extras: _generateExtras(storeId),
+        specialties: _generateSpecialties(storeId),
       );
     });
 
@@ -215,7 +216,11 @@ class _HomeScreenState extends State<HomeScreen> {
               return ModernCartIcon(
                 badgeCount: cartModel.itemCount,
                 onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const CartScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => CartScreen(
+                      stores: _stores, // تمرير قائمة المتاجر
+                    ),
+                  ),
                 ),
                 color: Color(0xFF00c1e8),
                 size: 24,
@@ -1190,6 +1195,7 @@ class _HomeScreenState extends State<HomeScreen> {
               AnimatedCartBar(
                 storeName: _stores.isNotEmpty ? _stores.first.name : 'متجر',
                 isExpanded: false,
+                stores: _stores, // تمرير قائمة المتاجر
               ),
             BottomNavigationBar(
               currentIndex: _selectedTabIndex,
@@ -2193,5 +2199,108 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  // دوال توليد البيانات الديناميكية للمشروبات والإضافات
+  List<MenuItem> _generateDrinks(int storeId) {
+    final drinks = [
+      'كوكا كولا',
+      'بيبسي',
+      'سبرايت',
+      'فانتا',
+      'ماء',
+      'عصير برتقال',
+      'عصير تفاح',
+      'شاي مثلج',
+      'قهوة باردة',
+      'مشروب طاقة'
+    ];
+    
+    // اختيار 2-4 مشروبات عشوائياً لكل مطعم
+    final selectedDrinks = <MenuItem>[];
+    final count = 2 + (storeId % 3); // من 2 إلى 4 مشروبات
+    
+    for (int i = 0; i < count; i++) {
+      final drinkIndex = (storeId + i) % drinks.length;
+      selectedDrinks.add(MenuItem(
+        id: 'drink_${storeId}_$i',
+        name: drinks[drinkIndex],
+        description: 'مشروب منعش ولذيذ',
+        price: 5.0 + (i * 2), // أسعار من 5 إلى 11 ريال
+        image: 'assets/images/food_placeholder.png',
+        likesPercent: 80 + (i * 5),
+        likesCount: 50 + (i * 10),
+      ));
+    }
+    
+    return selectedDrinks;
+  }
+
+  List<MenuItem> _generateExtras(int storeId) {
+    final extras = [
+      'بطاطس مقلية',
+      'حلقات البصل',
+      'أصابع الموزاريلا',
+      'شرائح البطاطا',
+      'ناجتس الدجاج',
+      'سلطة كولسلو',
+      'خبز بالثوم',
+      'صوص إضافي',
+      'جبنة إضافية',
+      'خضار مشكلة'
+    ];
+    
+    // اختيار 1-3 إضافات عشوائياً لكل مطعم
+    final selectedExtras = <MenuItem>[];
+    final count = 1 + (storeId % 3); // من 1 إلى 3 إضافات
+    
+    for (int i = 0; i < count; i++) {
+      final extraIndex = (storeId * 2 + i) % extras.length;
+      selectedExtras.add(MenuItem(
+        id: 'extra_${storeId}_$i',
+        name: extras[extraIndex],
+        description: 'إضافة لذيذة لوجبتك',
+        price: 3.0 + (i * 2), // أسعار من 3 إلى 7 ريال
+        image: 'assets/images/food_placeholder.png',
+        likesPercent: 70 + (i * 5),
+        likesCount: 30 + (i * 10),
+      ));
+    }
+    
+    return selectedExtras;
+  }
+
+  List<MenuItem> _generateSpecialties(int storeId) {
+    final specialties = [
+      'البرجر المميز',
+      'بيتزا الشيف',
+      'دجاج كريسبي',
+      'ستيك اللحم',
+      'سمك مشوي',
+      'معكرونة بالجبن',
+      'سلطة قيصر',
+      'شاورما خاصة',
+      'كباب مشوي',
+      'فراخ محشية'
+    ];
+    
+    // اختيار 2-3 أطباق مميزة عشوائياً لكل مطعم
+    final selectedSpecialties = <MenuItem>[];
+    final count = 2 + (storeId % 2); // من 2 إلى 3 أطباق مميزة
+    
+    for (int i = 0; i < count; i++) {
+      final specialtyIndex = (storeId * 3 + i) % specialties.length;
+      selectedSpecialties.add(MenuItem(
+        id: 'specialty_${storeId}_$i',
+        name: specialties[specialtyIndex],
+        description: 'طبق مميز من إبداع الشيف',
+        price: 15.0 + (i * 5), // أسعار من 15 إلى 25 ريال
+        image: 'assets/images/food_placeholder.png',
+        likesPercent: 85 + (i * 3),
+        likesCount: 100 + (i * 15),
+      ));
+    }
+    
+    return selectedSpecialties;
   }
 }

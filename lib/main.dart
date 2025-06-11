@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';          // ← استيراد provider
 import 'package:flutter_localizations/flutter_localizations.dart'; // ← لدعم الاتجاه العربي
 import 'models/cart_model.dart';                  // ← نموذج العربة
 import 'models/favorites_model.dart';             // ← نموذج المفضلة
+import 'services/address_service.dart';           // ← خدمة العناوين
 import 'screens/home_screen.dart';                // ← استيراد HomeScreen للاختبار
 
 void main() {
@@ -14,6 +15,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => CartModel()),
         ChangeNotifierProvider(create: (_) => FavoritesModel()),
+        ChangeNotifierProvider(create: (_) => AddressService()),
       ],
       child: const FoodAppUser(),
     ),
@@ -34,6 +36,7 @@ class _FoodAppUserState extends State<FoodAppUser> {
     // تحميل المفضلة المحفوظة عند بدء التطبيق
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<FavoritesModel>().loadFavorites();
+      context.read<AddressService>().initialize();
     });
   }
 

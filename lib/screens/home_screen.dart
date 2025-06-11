@@ -9,13 +9,14 @@ import 'package:foodapp_user/screens/store_detail_screen.dart';
 import 'package:foodapp_user/screens/cart_screen.dart';
 import 'package:foodapp_user/screens/account_screen.dart';
 import 'package:foodapp_user/screens/orders_screen.dart';
+import 'package:foodapp_user/screens/rewards_page_simple.dart';
 import 'package:foodapp_user/widgets/animated_cart_bar.dart';
 import 'package:foodapp_user/widgets/modern_cart_icon.dart';
 import 'package:foodapp_user/models/favorites_model.dart';
-import 'package:foodapp_user/screens/rewards_screen.dart';
 import 'package:foodapp_user/screens/coupons_screen.dart';
 import 'package:foodapp_user/services/user_service.dart';
 import 'package:foodapp_user/screens/enhanced_search_screen.dart';
+import 'package:foodapp_user/widgets/address_dropdown.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -44,9 +45,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // التبويب المحدد في BottomNavigationBar
   int _selectedTabIndex = 0;
-
-  // العنوان الافتراضي المحفوظ
-  final String _savedAddress = 'بغداد، الكرادة، حي 123، قرب الجامعة';
 
   // خدمة المستخدم للمكافآت والكوبونات
   final UserService _userService = UserService();
@@ -194,24 +192,6 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: _buildAppBar(),
       body: _selectedTabIndex == 0 ? _buildHomeContent() : _buildTabContent(),
       bottomNavigationBar: _buildBottomNavigation(),
-      floatingActionButton: Consumer<CartModel>(
-        builder: (context, cartModel, child) {
-          return cartModel.itemCount > 0
-              ? FloatingActionButton.extended(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const CartScreen()),
-                  ),
-                  backgroundColor: Color(0xFF00c1e8),
-                  icon: const Icon(Icons.shopping_cart, color: Colors.white),
-                  label: Text(
-                    'السلة (${cartModel.itemCount})',
-                    style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                )
-              : const SizedBox.shrink();
-        },
-      ),
     );
   }
 
@@ -221,32 +201,16 @@ class _HomeScreenState extends State<HomeScreen> {
       elevation: 0,
       automaticallyImplyLeading: false,
       toolbarHeight: 80,
-      title: Row(
-        children: [
-          Icon(Icons.location_on, color: Color(0xFF00c1e8), size: 28),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'توصيل إلى',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-                Text(
-                  _savedAddress,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          Consumer<CartModel>(
+      title: AddressDropdown(
+        onAddressChanged: (address) {
+          // يمكن إضافة منطق لتحديث المتاجر بناءً على الموقع الجديد
+          debugPrint('تم تغيير العنوان إلى: ${address.fullAddress}');
+        },
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: Consumer<CartModel>(
             builder: (context, cartModel, child) {
               return ModernCartIcon(
                 badgeCount: cartModel.itemCount,
@@ -259,8 +223,8 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -310,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -395,7 +359,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const RewardsScreen(),
+                        builder: (context) => const RewardsPage(),
                       ),
                     );
                   },

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:foodapp_user/screens/coupons_screen.dart';
-import 'package:foodapp_user/screens/rewards_screen.dart';
+import 'package:foodapp_user/screens/rewards_page_simple.dart';
 
 // الألوان الموحدة للتطبيق
 const Color _primaryColor = Color(0xFF00c1e8);
@@ -261,7 +261,7 @@ Widget buildRewardsAndCouponsSection(BuildContext context) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const RewardsScreen(),
+                          builder: (context) => const RewardsPage(),
                         ),
                       );
                     },

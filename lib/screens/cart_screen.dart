@@ -328,88 +328,8 @@ class _CartScreenState extends State<CartScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 24),
-                  // اقتراحات سريعة
-                  TweenAnimationBuilder(
-                    duration: const Duration(milliseconds: 1400),
-                    tween: Tween<double>(begin: 0.0, end: 1.0),
-                    builder: (context, double value, child) {
-                      return Opacity(
-                        opacity: value,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 32),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildQuickSuggestion(
-                                icon: Icons.local_pizza,
-                                label: 'بيتزا',
-                                color: Colors.orange,
-                              ),
-                              _buildQuickSuggestion(
-                                icon: Icons.fastfood,
-                                label: 'برجر',
-                                color: Colors.red,
-                              ),
-                              _buildQuickSuggestion(
-                                icon: Icons.local_drink,
-                                label: 'مشروبات',
-                                color: Colors.blue,
-                              ),
-                              _buildQuickSuggestion(
-                                icon: Icons.cake,
-                                label: 'حلويات',
-                                color: Colors.pink,
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
                 ],
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // عنصر اقتراح سريع
-  Widget _buildQuickSuggestion({
-    required IconData icon,
-    required String label,
-    required Color color,
-  }) {
-    return GestureDetector(
-      onTap: () => _navigateBackToStore(context),
-      child: Column(
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(25),
-              border: Border.all(
-                color: color.withOpacity(0.3),
-                width: 1,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 24,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -476,7 +396,7 @@ class _CartScreenState extends State<CartScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 // عناصر السلة
-                ...cart.items.map((item) => _buildCartItem(context, cart, item)).toList(),
+                ...cart.items.map((item) => _buildCartItem(context, cart, item)),
                 const SizedBox(height: 24),
                 // قسم الاقتراحات من نفس المطعم
                 _buildSuggestionsSection(context, cart),

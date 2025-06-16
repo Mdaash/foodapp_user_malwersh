@@ -152,14 +152,11 @@ class UserService extends ChangeNotifier {
       // await apiService.addUserPoints(points, reason);
       
       if (kDebugMode) {
-        print('تم إضافة $points نقطة. السبب: ${reason ?? "غير محدد"}');
-        print('إجمالي النقاط: $_currentPoints');
       }
       
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('خطأ في إضافة النقاط: $e');
       }
       return false;
     }
@@ -195,16 +192,11 @@ class UserService extends ChangeNotifier {
       // await apiService.redeemReward(rewardId, requiredPoints);
 
       if (kDebugMode) {
-        print('تم استبدال المكافأة: ${reward['title']}');
-        print('تم خصم $requiredPoints نقطة');
-        print('النقاط المتبقية: $_currentPoints');
-        print('تم إنشاء قسيمة: ${newCoupon['code']}');
       }
 
       return newCoupon;
     } catch (e) {
       if (kDebugMode) {
-        print('خطأ في استبدال المكافأة: $e');
       }
       return null;
     }
@@ -241,13 +233,11 @@ class UserService extends ChangeNotifier {
       notifyListeners();
 
       if (kDebugMode) {
-        print('تم إضافة قسيمة جديدة: $code');
       }
 
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('خطأ في إضافة القسيمة: $e');
       }
       return false;
     }
@@ -274,13 +264,11 @@ class UserService extends ChangeNotifier {
       // await apiService.useCoupon(couponId);
 
       if (kDebugMode) {
-        print('تم استخدام القسيمة: ${coupon['code']}');
       }
 
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('خطأ في استخدام القسيمة: $e');
       }
       return false;
     }
@@ -306,7 +294,6 @@ class UserService extends ChangeNotifier {
       notifyListeners();
       
       if (kDebugMode) {
-        print('تم نقل ${expiredCoupons.length} قسيمة منتهية الصلاحية');
       }
     }
   }
@@ -360,11 +347,9 @@ class UserService extends ChangeNotifier {
       notifyListeners();
       
       if (kDebugMode) {
-        print('تم تحديث بيانات المستخدم');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('خطأ في مزامنة البيانات: $e');
       }
     }
   }
@@ -394,7 +379,6 @@ class UserService extends ChangeNotifier {
       };
     } catch (e) {
       if (kDebugMode) {
-        print('خطأ في جلب بيانات المستخدم: $e');
       }
       return {'success': false, 'error': e.toString()};
     }
@@ -421,7 +405,6 @@ class UserService extends ChangeNotifier {
       notifyListeners();
       
       if (kDebugMode) {
-        print('تم تحديث العنوان بنجاح: $newAddress');
       }
       
       return {
@@ -431,7 +414,6 @@ class UserService extends ChangeNotifier {
       };
     } catch (e) {
       if (kDebugMode) {
-        print('خطأ في تحديث العنوان: $e');
       }
       
       return {
@@ -454,7 +436,6 @@ class UserService extends ChangeNotifier {
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('خطأ في تحديث الاسم: $e');
       }
       return false;
     }
@@ -472,7 +453,6 @@ class UserService extends ChangeNotifier {
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('خطأ في تحديث رقم الهاتف: $e');
       }
       return false;
     }
@@ -518,7 +498,6 @@ class UserService extends ChangeNotifier {
     notifyListeners();
     
     if (kDebugMode) {
-      print('تم إعادة تعيين البيانات');
     }
   }
 }

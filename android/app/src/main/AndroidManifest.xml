@@ -1,11 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- إذن الوصول للإنترنت -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- صلاحيات الموقع -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <application
         android:label="foodapp_user"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:networkSecurityConfig="@xml/network_security_config">
         <!-- مفتاح Google Maps API -->
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="ضع_مفتاحك_هنا" />
         <activity

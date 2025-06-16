@@ -7,7 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart'; // ← لدع
 import 'models/cart_model.dart';                  // ← نموذج العربة
 import 'models/favorites_model.dart';             // ← نموذج المفضلة
 import 'services/address_service.dart';           // ← خدمة العناوين
-import 'screens/home_screen.dart';                // ← استيراد HomeScreen للاختبار
+import 'screens/welcome_screen.dart';                // ← استيراد WelcomeScreen كبداية
 
 void main() {
   runApp(
@@ -88,7 +88,7 @@ class _FoodAppUserState extends State<FoodAppUser> {
           child: child!,
         );
       },
-      home: const HomeScreen(), // للاختبار المباشر للفئات
+      home: const WelcomeScreen(), // ابدأ من شاشة السبلاش/الترحيب
     );
   }
 }

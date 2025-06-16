@@ -64,4 +64,89 @@ class ApiService {
       return {"success": false, "message": "تعذر الاتصال بالخادم"};
     }
   }
+
+  // جلب معلومات المستخدم
+  static Future<Map<String, dynamic>> getUserProfile(String token) async {
+    final url = Uri.parse('$baseUrl/user/profile');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+
+      if (response.statusCode == 200) {
+        return {"success": true, "data": responseData};
+      } else {
+        return {
+          "success": false,
+          "message": responseData["message"] ?? "فشل في جلب البيانات"
+        };
+      }
+    } catch (e) {
+      return {"success": false, "message": "تعذر الاتصال بالخادم"};
+    }
+  }
+
+  // تحديث عنوان المستخدم
+  static Future<Map<String, dynamic>> updateUserAddress(
+    String token, 
+    Map<String, String> address
+  ) async {
+    final url = Uri.parse('$baseUrl/user/address');
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(address),
+      );
+
+      final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+
+      if (response.statusCode == 200) {
+        return {"success": true, "data": responseData};
+      } else {
+        return {
+          "success": false,
+          "message": responseData["message"] ?? "فشل في تحديث العنوان"
+        };
+      }
+    } catch (e) {
+      return {"success": false, "message": "تعذر الاتصال بالخادم"};
+    }
+  }
+
+  // جلب النقاط والكوبونات
+  static Future<Map<String, dynamic>> getUserRewards(String token) async {
+    final url = Uri.parse('$baseUrl/user/rewards');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+
+      if (response.statusCode == 200) {
+        return {"success": true, "data": responseData};
+      } else {
+        return {
+          "success": false,
+          "message": responseData["message"] ?? "فشل في جلب المكافآت"
+        };
+      }
+    } catch (e) {
+      return {"success": false, "message": "تعذر الاتصال بالخادم"};
+    }
+  }
 }

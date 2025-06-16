@@ -1,5 +1,5 @@
 // تصدير جميع الشاشات
-export 'rewards_page.dart';
+export 'rewards_page_simple.dart';
 export 'coupons_screen.dart';
 export 'home_screen.dart';
 export 'account_screen.dart';

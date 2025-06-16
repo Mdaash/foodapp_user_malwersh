@@ -101,11 +101,11 @@ void main() {
       expect(firstCategoryFinder, findsOneWidget);
 
       // Test tapping on a category item (with proper scrolling)
-      final firstCategoryFinder = find.text('المطاعم');
-      expect(firstCategoryFinder, findsOneWidget);
+      final categoryTapFinder = find.text('المطاعم');
+      expect(categoryTapFinder, findsOneWidget);
 
       // Scroll to make sure the category is visible
-      await tester.ensureVisible(firstCategoryFinder);
+      await tester.ensureVisible(categoryTapFinder);
       await tester.pump();
       
       // Test tapping on a category item

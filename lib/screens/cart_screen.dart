@@ -1196,7 +1196,6 @@ class _CartScreenState extends State<CartScreen> {
 
   // زر المتابعة مع التحقق من الحد الأدنى
   Widget _buildCheckoutButton(BuildContext context, CartModel cart) {
-    final int totalDishes = cart.items.fold(0, (sum, item) => sum + item.quantity);
     final double subtotal = cart.totalAmount;
     final double total = subtotal + CartScreen.deliveryFee;
     final bool isMinimumMet = subtotal >= CartScreen.minimumOrderAmount;
@@ -1288,6 +1287,8 @@ class _CartScreenState extends State<CartScreen> {
                   elevation: isMinimumMet ? 2 : 0,
                 ),
                 onPressed: isMinimumMet ? () {
+                  // التنقل لشاشة تأكيد الطلب
+                  final int totalDishes = cart.items.fold(0, (sum, item) => sum + item.quantity);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -1302,8 +1303,8 @@ class _CartScreenState extends State<CartScreen> {
                         subtotal: subtotal,
                         delivery: CartScreen.deliveryFee,
                         total: total,
-                        mapAddress: 'بغداد، الكرادة، حي 123، قرب الجامعة',
-                        userLocation: const LatLng(33.3152, 44.3661),
+                        mapAddress: 'بغداد، الكرادة، حي 123',
+                        userLocation: const LatLng(33.3152, 44.3661), // إحداثيات بغداد
                       ),
                     ),
                   );

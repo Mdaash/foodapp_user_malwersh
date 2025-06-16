@@ -117,12 +117,30 @@ class UserService extends ChangeNotifier {
     },
   ];
 
+  // بيانات المستخدم الشخصية
+  bool _isLoggedIn = true; // محاكاة تسجيل الدخول
+  String _userName = 'أحمد محمد العلي';
+  String _userPhone = '+964 770 123 4567';
+  Map<String, String> _userAddress = {
+    'governorate': 'بغداد',
+    'district': 'الكرخ',
+    'neighborhood': 'المنصور',
+    'landmark': 'بالقرب من مول المنصور',
+    'fullAddress': 'شارع الأميرات، بناية رقم 15، الطابق الثالث'
+  };
+
   // Getters
   int get currentPoints => _currentPoints;
   List<Map<String, dynamic>> get validCoupons => List.unmodifiable(_validCoupons);
   List<Map<String, dynamic>> get usedCoupons => List.unmodifiable(_usedCoupons);
   List<Map<String, dynamic>> get expiredCoupons => List.unmodifiable(_expiredCoupons);
   List<Map<String, dynamic>> get availableRewards => List.unmodifiable(_availableRewards);
+
+  // Getters for user data
+  bool get isLoggedIn => _isLoggedIn;
+  String get userName => _userName;
+  String get userPhone => _userPhone;
+  Map<String, String> get userAddress => Map.unmodifiable(_userAddress);
 
   // إضافة نقاط (للاستخدام المستقبلي مع الباك إند)
   Future<bool> addPoints(int points, {String? reason}) async {
@@ -348,6 +366,115 @@ class UserService extends ChangeNotifier {
       if (kDebugMode) {
         print('خطأ في مزامنة البيانات: $e');
       }
+    }
+  }
+
+  // دالة جلب بيانات المستخدم من الباك إند
+  Future<Map<String, dynamic>> fetchUserProfile() async {
+    try {
+      // TODO: Replace with actual API call to backend
+      // final response = await http.get(
+      //   Uri.parse('${baseUrl}/api/user/profile'),
+      //   headers: {
+      //     'Authorization': 'Bearer $userToken',
+      //     'Content-Type': 'application/json',
+      //   },
+      // );
+      
+      // محاكاة استجابة الباك إند
+      await Future.delayed(const Duration(seconds: 1));
+      
+      return {
+        'success': true,
+        'data': {
+          'name': _userName,
+          'phone': _userPhone,
+          'address': _userAddress,
+        },
+      };
+    } catch (e) {
+      if (kDebugMode) {
+        print('خطأ في جلب بيانات المستخدم: $e');
+      }
+      return {'success': false, 'error': e.toString()};
+    }
+  }
+
+  // دالة تحديث عنوان المستخدم
+  Future<Map<String, dynamic>> updateUserAddress(Map<String, String> newAddress) async {
+    try {
+      // TODO: Replace with actual API call to backend
+      // final response = await http.put(
+      //   Uri.parse('${baseUrl}/api/user/address'),
+      //   headers: {
+      //     'Authorization': 'Bearer $userToken',
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: json.encode(newAddress),
+      // );
+      
+      // محاكاة استجابة الباك إند
+      await Future.delayed(const Duration(seconds: 1));
+      
+      // تحديث البيانات المحلية
+      _userAddress = Map.from(newAddress);
+      notifyListeners();
+      
+      if (kDebugMode) {
+        print('تم تحديث العنوان بنجاح: $newAddress');
+      }
+      
+      return {
+        'success': true,
+        'message': 'تم تحديث العنوان بنجاح',
+        'data': newAddress,
+      };
+    } catch (e) {
+      if (kDebugMode) {
+        print('خطأ في تحديث العنوان: $e');
+      }
+      
+      return {
+        'success': false,
+        'message': 'فشل في تحديث العنوان',
+        'error': e.toString(),
+      };
+    }
+  }
+
+  // دالة تحديث اسم المستخدم
+  Future<bool> updateUserName(String newName) async {
+    try {
+      // TODO: Replace with actual API call
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      _userName = newName;
+      notifyListeners();
+      
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('خطأ في تحديث الاسم: $e');
+      }
+      return false;
+    }
+  }
+
+  // دالة تحديث رقم الهاتف
+  Future<bool> updateUserPhone(String newPhone) async {
+    try {
+      // TODO: Replace with actual API call
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      _userPhone = newPhone;
+      notifyListeners();
+      
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('خطأ في تحديث رقم الهاتف: $e');
+      }
+      return false;
     }
   }
 

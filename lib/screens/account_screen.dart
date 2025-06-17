@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'address_management_screen.dart';
+import '../services/user_session.dart';
+import 'login_screen.dart';
 
 class AccountScreen extends StatefulWidget {
   final VoidCallback? onBack;
@@ -11,7 +14,18 @@ class AccountScreen extends StatefulWidget {
 
 class _AccountScreenState extends State<AccountScreen> {
   @override
+  void initState() {
+    super.initState();
+    // تحميل بيانات المستخدم
+    UserSession.instance.loadFromPrefs();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final userSession = UserSession.instance;
+    final isLoggedIn = userSession.isLoggedIn;
+    final userName = userSession.userName ?? 'ضيف';
+    final userEmail = userSession.userEmail ?? (userSession.isGuest ? 'مستخدم ضيف' : 'غير محدد');
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -69,7 +83,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'مستخدم',
+                          userName,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -77,7 +91,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'user@example.com',
+                          userEmail,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -104,6 +118,27 @@ class _AccountScreenState extends State<AccountScreen> {
                     icon: Icons.location_on_outlined,
                     title: 'العناوين',
                     color: Colors.green,
+                    onTap: () {
+                      if (userSession.isLoggedIn && userSession.token != null && userSession.userId != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddressManagementScreen(
+                              token: userSession.token!,
+                              userId: userSession.userId!,
+                            ),
+                          ), 
+                        );
+                      } else {
+                        // إظهار رسالة للمستخدمين الضيوف
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('يجب تسجيل الدخول أولاً لإدارة العناوين'),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                      }
+                    },
                   ),
                   _AccountTile(
                     icon: Icons.payment_outlined,
@@ -130,6 +165,38 @@ class _AccountScreenState extends State<AccountScreen> {
                     icon: Icons.logout,
                     title: 'تسجيل الخروج',
                     color: Colors.red,
+                    onTap: () async {
+                      // إظهار تأكيد تسجيل الخروج
+                      final shouldLogout = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('تسجيل الخروج'),
+                          content: const Text('هل أنت متأكد من تسجيل الخروج؟'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('إلغاء'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                              child: const Text('تسجيل الخروج'),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (shouldLogout == true) {
+                        await UserSession.instance.logout();
+                        if (!mounted) return;
+                        
+                        // العودة لشاشة تسجيل الدخول
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/', 
+                          (route) => false,
+                        );
+                      }
+                    },
                   ),
                 ],
               ),
@@ -145,11 +212,13 @@ class _AccountTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final Color color;
+  final VoidCallback? onTap;
 
   const _AccountTile({
     required this.icon,
     required this.title,
     required this.color,
+    this.onTap,
   });
 
   @override
@@ -183,8 +252,8 @@ class _AccountTile extends StatelessWidget {
           size: 16,
           color: Colors.grey[400],
         ),
-        onTap: () {
-          // Handle tap
+        onTap: onTap ?? () {
+          // Handle default tap
         },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),

@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
+import 'package:foodapp_user/services/api_service.dart';
+import '../services/enhanced_session_service.dart';
 
 class AddressManagementScreen extends StatefulWidget {
   final String token;
   final String userId;
 
   const AddressManagementScreen({
-    Key? key,
+    super.key,
     required this.token,
     required this.userId,
-  }) : super(key: key);
+  });
 
   @override
   _AddressManagementScreenState createState() => _AddressManagementScreenState();
@@ -31,7 +32,17 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
     });
 
     try {
-      final result = await ApiService.getUserAddresses(widget.userId);
+      // التحقق من نوع الجلسة - إذا كان ضيف، لا تحميل العناوين
+      final isGuest = await EnhancedSessionService.isGuest();
+      if (isGuest) {
+        setState(() {
+          userAddresses = [];
+          isLoading = false;
+        });
+        return;
+      }
+
+      final result = await ApiService.getUserAddresses(widget.token);
       if (result['success']) {
         setState(() {
           userAddresses = List<Map<String, dynamic>>.from(result['data'] ?? []);
@@ -75,8 +86,8 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
     final TextEditingController nameController = TextEditingController(
       text: existingAddress?['name'] ?? ''
     );
-    final TextEditingController governorateController = TextEditingController(
-      text: existingAddress?['governorate'] ?? ''
+    final TextEditingController provinceController = TextEditingController(
+      text: existingAddress?['province'] ?? ''
     );
     final TextEditingController districtController = TextEditingController(
       text: existingAddress?['district'] ?? ''
@@ -115,7 +126,7 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
                     ),
                     const SizedBox(height: 10),
                     TextField(
-                      controller: governorateController,
+                      controller: provinceController,
                       decoration: const InputDecoration(
                         labelText: 'المحافظة',
                         labelStyle: TextStyle(fontFamily: 'Cairo'),
@@ -184,7 +195,7 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
                 ElevatedButton(
                   onPressed: () async {
                     if (nameController.text.trim().isEmpty ||
-                        governorateController.text.trim().isEmpty ||
+                        provinceController.text.trim().isEmpty ||
                         districtController.text.trim().isEmpty ||
                         neighborhoodController.text.trim().isEmpty ||
                         landmarkController.text.trim().isEmpty) {
@@ -197,12 +208,12 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
                     Map<String, dynamic> result;
                     
                     if (existingAddress != null) {
-                      // تحديث عنوان موجود
+                      // تحديث عنوان موجود - استخدام address_id من خادم الإنتاج
                       result = await ApiService.updateUserAddress(
                         token: widget.token,
-                        addressId: existingAddress['address_id'],
+                        addressId: existingAddress['address_id'] ?? existingAddress['id'],
                         name: nameController.text.trim(),
-                        governorate: governorateController.text.trim(),
+                        province: provinceController.text.trim(),
                         district: districtController.text.trim(),
                         neighborhood: neighborhoodController.text.trim(),
                         landmark: landmarkController.text.trim(),
@@ -212,9 +223,8 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
                       // إضافة عنوان جديد
                       result = await ApiService.addUserAddress(
                         token: widget.token,
-                        userId: widget.userId,
                         name: nameController.text.trim(),
-                        governorate: governorateController.text.trim(),
+                        province: provinceController.text.trim(),
                         district: districtController.text.trim(),
                         neighborhood: neighborhoodController.text.trim(),
                         landmark: landmarkController.text.trim(),
@@ -242,7 +252,7 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
     );
   }
 
-  void _confirmDeleteAddress(Map<String, dynamic> address) {
+  void _showDeleteConfirmDialog(Map<String, dynamic> address) {
     showDialog(
       context: context,
       builder: (context) {
@@ -273,7 +283,7 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
                 
                 final result = await ApiService.deleteUserAddress(
                   token: widget.token,
-                  addressId: address['address_id'],
+                  addressId: address['address_id'] ?? address['id'],
                 );
 
                 if (result['success']) {
@@ -301,7 +311,7 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
   void _setDefaultAddress(Map<String, dynamic> address) async {
     final result = await ApiService.setDefaultAddress(
       token: widget.token,
-      addressId: address['address_id'],
+      addressId: address['address_id'] ?? address['id'],
     );
 
     if (result['success']) {
@@ -428,7 +438,7 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              '${address['governorate']} - ${address['district']}',
+                              '${address['province']} - ${address['district']}',
                               style: const TextStyle(
                                 fontFamily: 'Cairo',
                                 fontSize: 14,
@@ -472,7 +482,7 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
                                   ),
                                 ),
                                 TextButton.icon(
-                                  onPressed: () => _confirmDeleteAddress(address),
+                                  onPressed: () => _showDeleteConfirmDialog(address),
                                   icon: const Icon(Icons.delete, size: 16),
                                   label: const Text(
                                     'حذف',
@@ -493,8 +503,8 @@ class _AddressManagementScreenState extends State<AddressManagementScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddressDialog(),
         backgroundColor: Colors.orange,
-        child: const Icon(Icons.add),
         tooltip: 'إضافة عنوان جديد',
+        child: const Icon(Icons.add),
       ),
     );
   }

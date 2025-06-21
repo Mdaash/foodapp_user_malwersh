@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/store.dart';
 import '../models/favorites_model.dart';
+import '../widgets/cached_image.dart';
 
 class FavoritesScreen extends StatelessWidget {
   final List<Store> stores;
@@ -83,21 +84,20 @@ class FavoritesScreen extends StatelessWidget {
                 ),
                 child: ListTile(
                   contentPadding: const EdgeInsets.all(16),
-                  leading: ClipRRect(
+                  leading: CachedImage(
+                    imageUrl: store.logoUrl,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      store.logoUrl,
+                    errorWidget: Container(
                       width: 60,
                       height: 60,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 60,
-                          height: 60,
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.store, color: Colors.grey),
-                        );
-                      },
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.store, color: Colors.grey),
                     ),
                   ),
                   title: Text(

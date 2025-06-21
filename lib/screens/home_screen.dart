@@ -8,9 +8,9 @@ import 'package:foodapp_user/models/menu_item.dart';
 import 'package:foodapp_user/models/cart_model.dart';
 import 'package:foodapp_user/screens/store_detail_screen.dart';
 import 'package:foodapp_user/screens/cart_screen.dart';
-import 'package:foodapp_user/screens/account_screen.dart';
 import 'package:foodapp_user/screens/orders_screen.dart';
 import 'package:foodapp_user/screens/rewards_page_simple.dart';
+import 'package:foodapp_user/screens/enhanced_account_screen.dart';
 import 'package:foodapp_user/widgets/animated_cart_bar.dart';
 import 'package:foodapp_user/widgets/modern_cart_icon.dart';
 import 'package:foodapp_user/models/favorites_model.dart';
@@ -189,10 +189,50 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: _selectedTabIndex == 0 ? _buildHomeContent() : _buildTabContent(),
-      bottomNavigationBar: _buildBottomNavigation(),
+    return PopScope(
+      canPop: false, // منع الخروج المباشر
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        
+        // التحقق من التبويب الحالي - فقط في التبويب الرئيسي نظهر رسالة الخروج
+        if (_selectedTabIndex != 0) {
+          // إذا كان في تبويب آخر، العودة للتبويب الرئيسي
+          setState(() => _selectedTabIndex = 0);
+          return;
+        }
+        
+        // حفظ السلة قبل الخروج
+        await context.read<CartModel>().saveToStorage();
+        
+        // إظهار تأكيد الخروج فقط في التبويب الرئيسي
+        final shouldExit = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('تأكيد الخروج'),
+            content: const Text('هل تريد إغلاق التطبيق؟'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('إلغاء'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00c1e8)),
+                child: const Text('خروج', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        );
+        
+        if (shouldExit == true && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        appBar: _buildAppBar(),
+        body: _selectedTabIndex == 0 ? _buildHomeContent() : _buildTabContent(),
+        bottomNavigationBar: _buildBottomNavigation(),
+      ),
     );
   }
 
@@ -202,11 +242,8 @@ class _HomeScreenState extends State<HomeScreen> {
       elevation: 0,
       automaticallyImplyLeading: false,
       toolbarHeight: 80,
-      title: AddressDropdown(
-        onAddressChanged: (address) {
-          // يمكن إضافة منطق لتحديث المتاجر بناءً على الموقع الجديد
-          debugPrint('تم تغيير العنوان إلى: ${address.fullAddress}');
-        },
+      title: const AddressDropdown(
+        onAddressChanged: null, // يمكن إضافة منطق لتحديث المتاجر بناءً على الموقع الجديد
       ),
       actions: [
         Padding(
@@ -279,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withValues(alpha: 0.1),
+                color: Colors.grey.withOpacity(0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -329,7 +366,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withValues(alpha: 0.3),
+                    Colors.black.withOpacity(0.3),
                   ],
                 ),
               ),
@@ -375,7 +412,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF00c1e8).withValues(alpha: 0.3),
+                          color: const Color(0xFF00c1e8).withOpacity(0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -389,7 +426,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
+                                color: Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Icon(
@@ -448,7 +485,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF00c1e8).withValues(alpha: 0.3),
+                          color: const Color(0xFF00c1e8).withOpacity(0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -462,7 +499,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
+                                color: Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Icon(
@@ -563,20 +600,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              (category["color"] as Color).withValues(alpha: 0.15),
-                              (category["color"] as Color).withValues(alpha: 0.05),
+                              (category["color"] as Color).withOpacity(0.15),
+                              (category["color"] as Color).withOpacity(0.05),
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: (category["color"] as Color).withValues(alpha: 0.3),
+                            color: (category["color"] as Color).withOpacity(0.3),
                             width: 1.3,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: (category["color"] as Color).withValues(alpha: 0.22),
+                              color: (category["color"] as Color).withOpacity(0.22),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -594,7 +631,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: 80,
                                 height: 80,
                                 decoration: BoxDecoration(
-                                  color: (category["color"] as Color).withValues(alpha: 0.2),
+                                  color: (category["color"] as Color).withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                                 child: Icon(
@@ -665,7 +702,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               },
               backgroundColor: Colors.grey[100],
-              selectedColor: Color(0xFF00c1e8).withValues(alpha: 0.2),
+              selectedColor: Color(0xFF00c1e8).withOpacity(0.2),
               checkmarkColor: Color(0xFF00c1e8),
             ),
           );
@@ -742,7 +779,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF00c1e8).withValues(alpha: 0.1),
+              color: const Color(0xFF00c1e8).withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -795,7 +832,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     }
-    
     return Container(
       height: 200,
       margin: const EdgeInsets.only(top: 12),
@@ -814,7 +850,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-  
+
   Widget _buildCompactStoreCard(Store store) {
     return Consumer<FavoritesModel>(
       builder: (context, favModel, child) {
@@ -839,7 +875,7 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withValues(alpha: 0.1),
+                  color: Colors.grey.withOpacity(0.1),
                   spreadRadius: 1,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
@@ -876,7 +912,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(15),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
+                                color: Colors.black.withOpacity(0.1),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -1005,7 +1041,7 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: Colors.grey.withOpacity(0.1),
             spreadRadius: 1,
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -1037,7 +1073,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withValues(alpha: 0.1),
+                        Colors.black.withOpacity(0.1),
                       ],
                     ),
                   ),
@@ -1057,7 +1093,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
+                          color: Colors.black.withOpacity(0.1),
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
@@ -1130,15 +1166,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       store.deliveryTime,
                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
-                    const SizedBox(width: 16),
-                    Icon(Icons.delivery_dining,
-                        color: Colors.grey[600], size: 16),
+                    const SizedBox(width: 12),
+                    Icon(Icons.delivery_dining, color: Colors.grey[600], size: 16),
                     const SizedBox(width: 4),
                     Text(
                       store.deliveryFee,
                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     Icon(Icons.location_on, color: Colors.grey[600], size: 16),
                     const SizedBox(width: 4),
                     Text(
@@ -1164,7 +1199,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 3:
         return const OrdersScreen();
       case 4:
-        return const AccountScreen();
+        return const EnhancedAccountScreen();
       default:
         return _buildHomeContent();
     }
@@ -1244,206 +1279,205 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _openCategoryBottomSheet(String categoryName, Color categoryColor) {
     final stores = _getStoresInCategory(categoryName);
-    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        builder: (context, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-          ),
-          child: Column(
-            children: [
-              // مؤشر الرقبة
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                height: 4,
-                width: 40,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
               ),
-              
-              // العنوان الرئيسي
-              Container(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      categoryColor.withValues(alpha: 0.05),
-                      Colors.transparent,
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  border: const Border(
-                    bottom: BorderSide(
-                      color: Color(0xFFE5E5E5),
-                      width: 1,
+              child: Column(
+                children: [
+                  // مؤشر الرقبة
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    height: 4,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    // صورة الفئة بدلاً من الأيقونة
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            categoryColor.withValues(alpha: 0.15),
-                            categoryColor.withValues(alpha: 0.05),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: categoryColor.withValues(alpha: 0.3),
-                          width: 2,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: categoryColor.withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
+                  // العنوان الرئيسي
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          categoryColor.withOpacity(0.05),
+                          Colors.transparent,
                         ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Image.asset(
-                          _getCategoryImage(categoryName),
+                      border: const Border(
+                        bottom: BorderSide(
+                          color: Color(0xFFE5E5E5),
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        // صورة الفئة
+                        Container(
                           width: 50,
                           height: 50,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: categoryColor.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Icon(
-                                _getCategoryIcon(categoryName),
-                                color: categoryColor,
-                                size: 24,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    
-                    // تفاصيل الفئة
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            categoryName,
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                categoryColor.withOpacity(0.15),
+                                categoryColor.withOpacity(0.05),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: categoryColor.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: categoryColor.withValues(alpha: 0.3),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Text(
-                                  '${stores.length} متجر متاح',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: categoryColor,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Icon(
-                                Icons.storefront,
-                                size: 16,
-                                color: Colors.grey[600],
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: categoryColor.withOpacity(0.3),
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: categoryColor.withOpacity(0.2),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                    
-                    // زر الإغلاق
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.close, color: Colors.grey),
-                        onPressed: () => Navigator.pop(context),
-                        iconSize: 20,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // قائمة المتاجر
-              Expanded(
-                child: stores.isEmpty
-                    ? _buildEmptyCategoryState(categoryName)
-                    : ListView.builder(
-                        controller: scrollController,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        itemCount: stores.length,
-                        itemBuilder: (context, index) {
-                          final store = stores[index];
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withValues(alpha: 0.08),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                              border: Border.all(
-                                color: Colors.grey.withValues(alpha: 0.1),
-                                width: 1,
-                              ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(14),
+                            child: Image.asset(
+                              _getCategoryImage(categoryName),
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: categoryColor.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  child: Icon(
+                                    _getCategoryIcon(categoryName),
+                                    color: categoryColor,
+                                    size: 24,
+                                  ),
+                                );
+                              },
                             ),
-                            child: _buildCategoryStoreItem(store),
-                          );
-                        },
-                      ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // تفاصيل الفئة
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                categoryName,
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: categoryColor.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: categoryColor.withOpacity(0.3),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      '${stores.length} متجر متاح',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: categoryColor,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    Icons.storefront,
+                                    size: 16,
+                                    color: Colors.grey[600],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        // زر الإغلاق
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(Icons.close, color: Colors.grey),
+                            onPressed: () => Navigator.pop(context),
+                            iconSize: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // قائمة المتاجر
+                  Expanded(
+                    child: stores.isEmpty
+                        ? _buildEmptyCategoryState(categoryName)
+                        : ListView.builder(
+                            controller: scrollController,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            itemCount: stores.length,
+                            itemBuilder: (context, index) {
+                              final store = stores[index];
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.08),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                  border: Border.all(
+                                    color: Colors.grey.withOpacity(0.1),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: _buildCategoryStoreItem(store),
+                              );
+                            },
+                          ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -1574,7 +1608,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withValues(alpha: 0.2),
+                    color: Colors.grey.withOpacity(0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -1588,7 +1622,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF00c1e8).withValues(alpha: 0.1),
+                        color: const Color(0xFF00c1e8).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: const Icon(
@@ -1627,7 +1661,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.amber.withValues(alpha: 0.1),
+                          color: Colors.amber.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -1729,7 +1763,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
+  
   // Helper method to filter stores by filter name
   List<Store> _getStoresByFilter(String filterName) {
     switch (filterName) {
@@ -1828,67 +1862,55 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openFilterBottomSheet(String filterName) {
     final filteredStores = _getStoresByFilter(filterName);
     final filterIcon = _filterIcons[filterName] ?? Icons.filter_list;
-    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        builder: (context, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            children: [
-              // Drag handle
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                height: 4,
-                width: 40,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              
-              // Header
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFF00c1e8).withValues(alpha: 0.1),
-                      const Color(0xFF0099d4).withValues(alpha: 0.05),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              child: Column(
+                children: [
+                  // Drag handle
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    height: 4,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
-                  border: const Border(
-                    bottom: BorderSide(color: Color(0xFFE5E5E5), width: 1),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 4,
-                      margin: const EdgeInsets.only(bottom: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFF00c1e8).withOpacity(0.1),
+                          const Color(0xFF0099d4).withOpacity(0.05),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      border: const Border(
+                        bottom: BorderSide(color: Color(0xFFE5E5E5), width: 1),
                       ),
                     ),
-                    // Title with icon
-                    Row(
+                    child: Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF00c1e8).withValues(alpha: 0.1),
+                            color: const Color(0xFF00c1e8).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
@@ -1921,283 +1943,92 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.close),
-                          style: IconButton.styleFrom(
-                            backgroundColor: Colors.grey[100],
-                            foregroundColor: Colors.grey[600],
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.close),
+                            color: Colors.grey[600],
                           ),
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-              
-              // Stores list
-              Expanded(
-                child: filteredStores.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(24),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.store_outlined,
-                                size: 48,
-                                color: Colors.grey[400],
-                              ),
+                  ),
+                  // قائمة المتاجر
+                  Expanded(
+                    child: filteredStores.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(24),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.store_outlined,
+                                    size: 48,
+                                    color: Colors.grey[400],
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'لا توجد متاجر',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'لا توجد متاجر متاحة لهذا الفلتر حالياً',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'لا توجد متاجر',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'لا توجد متاجر متاحة لهذا الفلتر حالياً',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[500],
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      )
-                    : Consumer<FavoritesModel>(
-                        builder: (context, favModel, child) {
-                          return ListView.builder(
-                            controller: scrollController,
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             itemCount: filteredStores.length,
                             itemBuilder: (context, index) {
                               final store = filteredStores[index];
-                              final isFavorite = favModel.isStoreFavorite(store.id);
-                              
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 12),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.05),
-                                      blurRadius: 8,
+                                      color: Colors.grey.withOpacity(0.08),
+                                      blurRadius: 10,
                                       offset: const Offset(0, 2),
                                     ),
                                   ],
                                   border: Border.all(
-                                    color: Colors.grey.withValues(alpha: 0.1),
+                                    color: Colors.grey.withOpacity(0.1),
                                     width: 1,
                                   ),
                                 ),
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => StoreDetailScreen(
-                                          store: store,
-                                          favoriteStoreIds: favModel.favoriteStoreIds,
-                                          onFavoriteToggle: (isFavorite) {
-                                            favModel.toggleStoreFavorite(store.id);
-                                          },
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12),
-                                    child: Row(
-                                      children: [
-                                        // Store image
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(8),
-                                          child: Image.asset(
-                                            store.image,
-                                            width: 70,
-                                            height: 70,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) {
-                                              return Container(
-                                                width: 70,
-                                                height: 70,
-                                                color: Colors.grey[200],
-                                                child: Icon(
-                                                  Icons.store,
-                                                  color: Colors.grey[400],
-                                                  size: 32,
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        
-                                        // Store details
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      store.name,
-                                                      style: const TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: Colors.black87,
-                                                      ),
-                                                      maxLines: 1,
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                  IconButton(
-                                                    onPressed: () {
-                                                      favModel.toggleStoreFavorite(store.id);
-                                                    },
-                                                    icon: Icon(
-                                                      isFavorite ? Icons.favorite : Icons.favorite_border,
-                                                      color: isFavorite ? Colors.red : Colors.grey,
-                                                      size: 20,
-                                                    ),
-                                                    padding: EdgeInsets.zero,
-                                                    constraints: const BoxConstraints(
-                                                      minWidth: 32,
-                                                      minHeight: 32,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 4),
-                                              
-                                              // Rating and reviews
-                                              Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons.star,
-                                                    color: Colors.amber[600],
-                                                    size: 16,
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  Text(
-                                                    store.rating,
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight: FontWeight.w600,
-                                                      color: Colors.black87,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  Text(
-                                                    '(${store.reviews})',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey[600],
-                                                    ),
-                                                  ),
-                                                  const Spacer(),
-                                                  Container(
-                                                    padding: const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 2,
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      color: store.isOpen 
-                                                          ? Colors.green.withValues(alpha: 0.1)
-                                                          : Colors.red.withValues(alpha: 0.1),
-                                                      borderRadius: BorderRadius.circular(4),
-                                                    ),
-                                                    child: Text(
-                                                      store.isOpen ? 'مفتوح' : 'مغلق',
-                                                      style: TextStyle(
-                                                        fontSize: 10,
-                                                        fontWeight: FontWeight.w600,
-                                                        color: store.isOpen ? Colors.green[700] : Colors.red[700],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 8),
-                                              
-                                              // Time, fee, distance
-                                              Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons.access_time,
-                                                    size: 14,
-                                                    color: Colors.grey[600],
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  Text(
-                                                    store.time,
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey[600],
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 12),
-                                                  Icon(
-                                                    Icons.delivery_dining,
-                                                    size: 14,
-                                                    color: Colors.grey[600],
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  Text(
-                                                    store.fee,
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey[600],
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 12),
-                                                  Icon(
-                                                    Icons.location_on,
-                                                    size: 14,
-                                                    color: Colors.grey[600],
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  Text(
-                                                    store.distance,
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey[600],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                child: _buildCategoryStoreItem(store),
                               );
                             },
-                          );
-                        },
-                      ),
+                          ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 

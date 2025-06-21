@@ -1,8 +1,10 @@
 // lib/screens/login_screen.dart
 import 'package:flutter/material.dart';
-import 'package:foodapp_user/services/api_service.dart';
-import 'package:foodapp_user/services/user_session.dart';
-import 'package:foodapp_user/screens/home_screen.dart';
+import '../services/auth_service.dart';
+import '../services/enhanced_session_service.dart';
+import 'home_screen.dart';
+import 'signup_screen.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,22 +17,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController    = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _obscurePassword = true;
   String? _loginError;
-
-  // دالة لاختبار الاتصال
-  Future<void> _testConnection() async {
-    setState(() => _isLoading = true);
-    final result = await ApiService.testConnection();
-    setState(() => _isLoading = false);
-    
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(result["message"]),
-        backgroundColor: result["success"] ? Colors.green : Colors.red,
-      ),
-    );
-  }
 
   @override
   void dispose() {
@@ -39,8 +27,8 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
-    final input    = _emailController.text.trim(); // يمكن أن يكون بريد إلكتروني أو رقم هاتف
+  void _handleLogin() async {
+    final input    = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
     if (input.isEmpty || password.isEmpty) {
@@ -53,54 +41,45 @@ class _LoginScreenState extends State<LoginScreen> {
       _loginError = null;
     });
 
-    Map<String, dynamic> result;
-    
-    // استخدام دالة login الموحدة التي تقبل البريد الإلكتروني أو رقم الهاتف
-    print("محاولة الدخول بالمعرف: $input");
-    result = await ApiService.login(input, password);
-    
-    print("نتيجة تسجيل الدخول: $result"); // للتشخيص
-    
-    // تأكّد أن الـ State ما زال موجودًا قبل استخدام context أو setState
-    if (!mounted) return;
-
-    setState(() => _isLoading = false);
-
-    if (result["success"] == true) {
-      print("تسجيل الدخول نجح!"); // للتشخيص
-      
-      // حفظ بيانات المستخدم في الجلسة
-      final userData = result["data"];
-      await UserSession.instance.login(
-        token: userData["user_id"], // استخدام user_id كـ token مؤقتاً
-        userId: userData["user_id"],
-        userName: userData["user"]["name"],
-        userEmail: userData["user"]["email"],
-        userPhone: userData["user"]["phone"],
+    try {
+      // محاولة تسجيل الدخول
+      final result = await AuthService.login(
+        identifier: input,
+        password: password,
       );
-      
-      // مرّر هنا أيضًا mounted لوضع Snackbar أو Navigator
+
+      setState(() => _isLoading = false);
+
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم تسجيل الدخول بنجاح ✅')),
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-    } else {
-      print("تسجيل الدخول فشل: ${result["message"]}"); // للتشخيص
-      // معالجة رسالة الخطأ بشكل صحيح
-      String errorMessage = "فشل تسجيل الدخول";
-      if (result["message"] != null) {
-        if (result["message"] is String) {
-          errorMessage = result["message"];
-        } else if (result["message"] is List) {
-          // إذا كانت رسالة الخطأ عبارة عن قائمة (من FastAPI)
-          errorMessage = "خطأ في البيانات المدخلة";
-        }
+
+      if (result['success']) {
+        // حفظ بيانات الجلسة
+        final data = result['data'];
+        final userData = data['user'] ?? {};
+        
+        await EnhancedSessionService.saveSession(
+          token: data['access_token'] ?? 'temp_token',
+          userId: data['user_id']?.toString() ?? userData['user_id']?.toString() ?? 'temp_user_id',
+          userName: userData['name'] ?? 'المستخدم',
+          userPhone: userData['phone'] ?? (input.contains('@') ? '' : input),
+          userEmail: userData['email'] ?? (input.contains('@') ? input : null),
+        );
+        
+        // الانتقال للشاشة الرئيسية
+        Navigator.pushReplacement(
+          context, 
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      } else {
+        setState(() {
+          _loginError = result['message'] ?? 'حدث خطأ غير متوقع';
+        });
       }
-      setState(() => _loginError = errorMessage);
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _loginError = 'حدث خطأ في الاتصال: ${e.toString()}';
+      });
     }
   }
 
@@ -129,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 40),
                 TextField(
                   controller: _emailController,
-                  keyboardType: TextInputType.text, // تغيير لقبول النص العام
+                  keyboardType: TextInputType.text,
                   decoration: const InputDecoration(
                     labelText: 'البريد الإلكتروني أو رقم الهاتف',
                     hintText: 'example@email.com أو 07XXXXXXXX',
@@ -139,10 +118,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 20),
                 TextField(
                   controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
+                  obscureText: _obscurePassword,
+                  decoration: InputDecoration(
                     labelText: 'كلمة المرور',
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(height: 30),
@@ -162,47 +151,22 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                 ),
-                const SizedBox(height: 12),
-                // زر اختبار الاتصال للتشخيص
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: _isLoading ? null : _testConnection,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF00c1e8),
-                      side: const BorderSide(color: Color(0xFF00c1e8)),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: const Text(
-                      'اختبار الاتصال بالخادم',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // زر الدخول كضيف
-                SizedBox(
-                  width: double.infinity,
+                
+                // رابط نسيت كلمة المرور
+                const SizedBox(height: 16),
+                Center(
                   child: TextButton(
-                    onPressed: _isLoading ? null : () async {
-                      // حفظ حالة الضيف
-                      await UserSession.instance.loginAsGuest();
-                      
-                      // الانتقال مباشرة للشاشة الرئيسية كضيف
-                      if (!mounted) return;
-                      Navigator.pushReplacement(
+                    onPressed: () {
+                      Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                        MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
                       );
                     },
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.grey[600],
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
                     child: const Text(
-                      'الدخول كضيف',
+                      'نسيت كلمة المرور؟',
                       style: TextStyle(
-                        fontSize: 16,
+                        color: Color(0xFF00c1e8),
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -239,6 +203,61 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ],
+                
+                // فاصل "أو"
+                const SizedBox(height: 40),
+                Row(
+                  children: [
+                    const Expanded(child: Divider()),
+                    const SizedBox(width: 16),
+                    Text(
+                      'أو',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(child: Divider()),
+                  ],
+                ),
+                
+                // رابط إنشاء حساب جديد
+                const SizedBox(height: 20),
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'مستخدم جديد؟ ',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 14,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const SignUpScreen()),
+                          );
+                        },
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                        ),
+                        child: const Text(
+                          'سجل الآن',
+                          style: TextStyle(
+                            color: Color(0xFF00c1e8),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

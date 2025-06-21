@@ -1,19 +1,54 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'api_optimization_service.dart';
+import 'advanced_cache_service.dart';
+import 'enhanced_api_service.dart';
 
-class ApiService {
-  // تحديد العنوان حسب النظام
-  static String get baseUrl {
-    if (Platform.isAndroid) {
-      return "http://10.0.2.2:8004"; // للمحاكي Android
-    } else {
-      return "http://127.0.0.1:8004"; // لـ iOS أو الأجهزة الحقيقية
+class ApiService with ApiOptimizationMixin {
+  // خدمات التحسين
+  static final AdvancedCacheService _cache = AdvancedCacheService();
+  static bool _isInitialized = false;
+
+  // تهيئة الخدمات
+  static Future<void> init() async {
+    if (!_isInitialized) {
+      await _cache.init();
+      await EnhancedApiService.initialize();
+      _isInitialized = true;
+      debugPrint('✅ API Service with optimizations initialized');
     }
   }
 
+  // تحديد العنوان حسب النظام - للاتصال بخادم الإنتاج الفعلي
+  static String get baseUrl {
+    if (kIsWeb) {
+      return "http://127.0.0.1:8080"; // للويب - خادم الإنتاج
+    } else {
+      // للأجهزة المحمولة والمحاكي
+      return "http://10.0.2.2:8080"; // خادم الإنتاج عبر المحاكي
+    }
+  }
+
+  // للتبديل بين خادم الاختبار وخادم الإنتاج أثناء التطوير
+  static String get testServerUrl {
+    if (kIsWeb) {
+      return "http://127.0.0.1:8004"; // للويب - خادم الاختبار
+    } else {
+      return "http://10.0.2.2:8004"; // خادم الاختبار عبر المحاكي
+    }
+  }
+
+  // متغير للتحكم في استخدام خادم الاختبار أو الإنتاج
+  static bool useTestServer = false; // تغيير إلى true لاستخدام خادم الاختبار
+
+  // الحصول على URL الصحيح حسب الإعداد
+  static String get currentBaseUrl {
+    return useTestServer ? testServerUrl : baseUrl;
+  }
+
   static Future<Map<String, dynamic>> login(String identifier, String password) async {
-    final url = Uri.parse("$baseUrl/login");
+    final url = Uri.parse("$currentBaseUrl/auth/login");
     
     print("محاولة الاتصال بـ: $url"); // للتشخيص
     print("البيانات المرسلة - المعرف: '$identifier', كلمة المرور: '$password'"); // للتشخيص
@@ -37,7 +72,7 @@ class ApiService {
       if (response.statusCode == 200) {
         return {"success": true, "data": responseData};
       } else {
-        print("خطأ من الخادم: ${responseData}"); // للتشخيص
+        print("خطأ من الخادم: $responseData"); // للتشخيص
         
         // معالجة محسنة لرسائل الخطأ
         String errorMessage = "فشل تسجيل الدخول";
@@ -61,7 +96,7 @@ class ApiService {
     } catch (e) {
       print("خطأ في الاتصال: $e"); // للتشخيص
       if (e.toString().contains('SocketException')) {
-        return {"success": false, "message": "تعذر الوصول إلى الخادم. تأكد من أن الخادم يعمل على البورت 8004"};
+        return {"success": false, "message": "تعذر الوصول إلى الخادم. تأكد من أن الخادم يعمل على البورت 8080"};
       } else if (e.toString().contains('TimeoutException')) {
         return {"success": false, "message": "انتهت مهلة الاتصال. تحقق من اتصال الإنترنت"};
       } else {
@@ -76,7 +111,7 @@ class ApiService {
     required String password,
     required String phone,
   }) async {
-    final url = Uri.parse('$baseUrl/register');
+    final url = Uri.parse('$currentBaseUrl/auth/register');
     
     print("محاولة التسجيل في: $url"); // للتشخيص
     
@@ -97,7 +132,7 @@ class ApiService {
 
       final responseData = jsonDecode(utf8.decode(response.bodyBytes));
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) { // Backend returns 201 for registration
         return {"success": true, "data": responseData};
       } else {
         // معالجة محسنة لرسائل الخطأ من الخادم
@@ -130,7 +165,7 @@ class ApiService {
     } catch (e) {
       print("خطأ في التسجيل: $e"); // للتشخيص
       if (e.toString().contains('SocketException')) {
-        return {"success": false, "message": "تعذر الوصول إلى الخادم. تأكد من أن الخادم يعمل على البورت 8004"};
+        return {"success": false, "message": "تعذر الوصول إلى الخادم. تأكد من أن الخادم يعمل على البورت 8080"};
       } else if (e.toString().contains('TimeoutException')) {
         return {"success": false, "message": "انتهت مهلة الاتصال. تحقق من اتصال الإنترنت"};
       } else {
@@ -141,7 +176,7 @@ class ApiService {
 
   // جلب معلومات المستخدم
   static Future<Map<String, dynamic>> getUserProfile(String token) async {
-    final url = Uri.parse('$baseUrl/user/profile');
+    final url = Uri.parse('$currentBaseUrl/auth/me');
     try {
       final response = await http.get(
         url,
@@ -166,103 +201,64 @@ class ApiService {
     }
   }
 
-  // تحديث معلومات المستخدم
+  // تحديث معلومات المستخدم - TODO: Implement in backend
   static Future<Map<String, dynamic>> updateUserProfile({
     required String token,
     String? name,
     String? email,
     String? phone,
   }) async {
-    final url = Uri.parse('$baseUrl/user/profile');
-    try {
-      final response = await http.put(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          if (name != null) 'name': name,
-          if (email != null) 'email': email,
-          if (phone != null) 'phone': phone,
-        }),
-      );
-
-      final responseData = jsonDecode(utf8.decode(response.bodyBytes));
-
-      if (response.statusCode == 200) {
-        return {"success": true, "data": responseData};
-      } else {
-        return {
-          "success": false,
-          "message": responseData["message"] ?? "فشل في تحديث الملف الشخصي"
-        };
-      }
-    } catch (e) {
-      return {"success": false, "message": "تعذر الاتصال بالخادم"};
-    }
+    // TODO: Add user profile update endpoint to backend
+    return {"success": false, "message": "تحديث الملف الشخصي غير متاح حالياً"};
   }
 
-  // جلب النقاط والكوبونات
+  // جلب النقاط والكوبونات - TODO: Implement in backend  
   static Future<Map<String, dynamic>> getUserRewards(String token) async {
-    final url = Uri.parse('$baseUrl/user/rewards');
-    try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      final responseData = jsonDecode(utf8.decode(response.bodyBytes));
-
-      if (response.statusCode == 200) {
-        return {"success": true, "data": responseData};
-      } else {
-        return {
-          "success": false,
-          "message": responseData["message"] ?? "فشل في جلب المكافآت"
-        };
-      }
-    } catch (e) {
-      return {"success": false, "message": "تعذر الاتصال بالخادم"};
-    }
+    // TODO: Add user rewards endpoint to backend
+    return {"success": false, "message": "نظام المكافآت غير متاح حالياً"};
   }
 
-  // إضافة عنوان جديد للمستخدم (نموذج العناوين المتعددة)
+  // إضافة عنوان جديد للمستخدم (متوافق مع خادم الإنتاج)
   static Future<Map<String, dynamic>> addUserAddress({
     required String token,
-    required String userId,
     required String name,
-    required String governorate,
+    required String province, // Changed from governorate to province
     required String district,
     required String neighborhood,
     required String landmark,
     bool isDefault = false,
   }) async {
-    final url = Uri.parse('$baseUrl/user/$userId/addresses');
+    final url = Uri.parse('$currentBaseUrl/addresses'); // Fixed URL
+    
+    print("إضافة عنوان جديد");
+    
     try {
+      final requestBody = jsonEncode({
+        'name': name,
+        'province': province, // Fixed field name
+        'district': district,
+        'neighborhood': neighborhood,
+        'landmark': landmark,
+        'is_default': isDefault,
+      });
+      
+      print("بيانات العنوان: $requestBody");
+
       final response = await http.post(
         url,
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          'user_id': userId,
-          'name': name,
-          'governorate': governorate,
-          'district': district,
-          'neighborhood': neighborhood,
-          'landmark': landmark,
-          'is_default': isDefault,
-        }),
+        body: requestBody,
       );
+
+      print("رمز استجابة إضافة العنوان: ${response.statusCode}");
+      print("محتوى الاستجابة: ${response.body}");
 
       final responseData = jsonDecode(utf8.decode(response.bodyBytes));
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) { // Backend returns 201 for creation
         return {"success": true, "data": responseData};
       } else {
         // معالجة محسنة لرسائل الخطأ
@@ -285,22 +281,188 @@ class ApiService {
     }
   }
 
-  // جلب عناوين المستخدم (قائمة العناوين المتعددة)
-  static Future<Map<String, dynamic>> getUserAddresses(String userId) async {
-    final url = Uri.parse('$baseUrl/user/$userId/addresses');
+  // تحديث عنوان موجود (متوافق مع خادم الإنتاج)
+  static Future<Map<String, dynamic>> updateUserAddress({
+    required String token,
+    required String addressId,
+    required String name,
+    required String province, // Changed from governorate to province
+    required String district,
+    required String neighborhood,
+    required String landmark,
+    bool isDefault = false,
+  }) async {
+    final url = Uri.parse('$currentBaseUrl/addresses/$addressId'); // Fixed URL
+    
+    print("تحديث العنوان: $addressId");
+    
     try {
-      final response = await http.get(
+      final requestBody = jsonEncode({
+        'name': name,
+        'province': province, // Fixed field name
+        'district': district,
+        'neighborhood': neighborhood,
+        'landmark': landmark,
+        'is_default': isDefault,
+      });
+      
+      print("بيانات التحديث: $requestBody");
+
+      final response = await http.put(
         url,
         headers: {
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
+        body: requestBody,
       );
+
+      print("رمز استجابة تحديث العنوان: ${response.statusCode}");
+      print("محتوى الاستجابة: ${response.body}");
 
       final responseData = jsonDecode(utf8.decode(response.bodyBytes));
 
       if (response.statusCode == 200) {
         return {"success": true, "data": responseData};
       } else {
+        String errorMessage = "فشل في تحديث العنوان";
+        
+        if (responseData.containsKey("message")) {
+          errorMessage = responseData["message"];
+        } else if (responseData.containsKey("detail")) {
+          errorMessage = responseData["detail"];
+        }
+        
+        return {
+          "success": false,
+          "message": errorMessage
+        };
+      }
+    } catch (e) {
+      print("خطأ في تحديث العنوان: $e");
+      return {"success": false, "message": "تعذر الاتصال بالخادم"};
+    }
+  }
+
+  // حذف عنوان (متوافق مع خادم الإنتاج)
+  static Future<Map<String, dynamic>> deleteUserAddress({
+    required String token,
+    required String addressId,
+  }) async {
+    final url = Uri.parse('$currentBaseUrl/addresses/$addressId'); // Fixed URL
+    
+    print("حذف العنوان: $addressId");
+    
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print("رمز استجابة حذف العنوان: ${response.statusCode}");
+      print("محتوى الاستجابة: ${response.body}");
+
+      if (response.statusCode == 204) { // Backend returns 204 for successful deletion
+        return {"success": true, "data": {"message": "تم حذف العنوان بنجاح"}};
+      } else {
+        final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+        String errorMessage = "فشل في حذف العنوان";
+        
+        if (responseData.containsKey("message")) {
+          errorMessage = responseData["message"];
+        } else if (responseData.containsKey("detail")) {
+          errorMessage = responseData["detail"];
+        }
+        
+        return {
+          "success": false,
+          "message": errorMessage
+        };
+      }
+    } catch (e) {
+      print("خطأ في حذف العنوان: $e");
+      return {"success": false, "message": "تعذر الاتصال بالخادم"};
+    }
+  }
+
+  // تحديد عنوان كافتراضي (متوافق مع خادم الإنتاج)
+  static Future<Map<String, dynamic>> setDefaultAddress({
+    required String token,
+    required String addressId,
+  }) async {
+    final url = Uri.parse('$currentBaseUrl/addresses/set-default'); // Fixed endpoint
+    
+    print("تحديد العنوان الافتراضي: $addressId");
+    
+    try {
+      final requestBody = jsonEncode({
+        'address_id': addressId, // Backend expects address_id
+      });
+      
+      print("بيانات تحديد الافتراضي: $requestBody");
+
+      final response = await http.post( // Backend uses POST for set-default
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: requestBody,
+      );
+
+      print("رمز استجابة تحديد الافتراضي: ${response.statusCode}");
+      print("محتوى الاستجابة: ${response.body}");
+
+      final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+
+      if (response.statusCode == 200) {
+        return {"success": true, "data": responseData};
+      } else {
+        String errorMessage = "فشل في تحديد العنوان الافتراضي";
+        
+        if (responseData.containsKey("message")) {
+          errorMessage = responseData["message"];
+        } else if (responseData.containsKey("detail")) {
+          errorMessage = responseData["detail"];
+        }
+        
+        return {
+          "success": false,
+          "message": errorMessage
+        };
+      }
+    } catch (e) {
+      print("خطأ في تحديد العنوان الافتراضي: $e");
+      return {"success": false, "message": "تعذر الاتصال بالخادم"};
+    }
+  }
+
+  // جلب عناوين المستخدم (متوافق مع خادم الإنتاج)
+  static Future<Map<String, dynamic>> getUserAddresses(String token) async {
+    final url = Uri.parse('$currentBaseUrl/addresses'); // Fixed endpoint
+    
+    print("جلب عناوين المستخدم من: $url");
+    
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Added authorization header
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print("رمز استجابة جلب العناوين: ${response.statusCode}");
+      print("محتوى الاستجابة: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+        return {"success": true, "data": responseData};
+      } else {
+        final responseData = jsonDecode(utf8.decode(response.bodyBytes));
         // معالجة محسنة لرسائل الخطأ
         String errorMessage = "فشل في جلب العناوين";
         
@@ -321,114 +483,40 @@ class ApiService {
     }
   }
 
-  // حذف عنوان (للعناوين المتعددة)
-  static Future<Map<String, dynamic>> deleteUserAddress({
-    required String token,
-    required String addressId,
-  }) async {
-    final url = Uri.parse('$baseUrl/user/addresses/$addressId');
+  // Added fetch method
+  static Future<Map<String, dynamic>> fetch(String endpoint, {Map<String, dynamic>? queryParams}) async {
+    final uri = Uri.parse('$currentBaseUrl$endpoint').replace(queryParameters: queryParams);
     try {
-      final response = await http.delete(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      final responseData = jsonDecode(utf8.decode(response.bodyBytes));
-
+      final response = await http.get(uri).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
-        return {"success": true, "data": responseData};
+        return jsonDecode(response.body);
       } else {
-        // معالجة محسنة لرسائل الخطأ
-        String errorMessage = "فشل في حذف العنوان";
-        
-        if (responseData.containsKey("message")) {
-          errorMessage = responseData["message"];
-        } else if (responseData.containsKey("detail")) {
-          errorMessage = responseData["detail"];
-        }
-        
-        return {
-          "success": false,
-          "message": errorMessage
-        };
+        throw Exception('Failed to fetch data: ${response.statusCode}');
       }
     } catch (e) {
-      return {"success": false, "message": "تعذر الاتصال بالخادم"};
+      throw Exception('Error during fetch: $e');
     }
   }
 
-  // تحديث عنوان (للعناوين المتعددة)
-  static Future<Map<String, dynamic>> updateUserAddress({
-    required String token,
-    required String addressId,
-    String? name,
-    String? governorate,
-    String? district,
-    String? neighborhood,
-    String? landmark,
-    bool? isDefault,
-  }) async {
-    final url = Uri.parse('$baseUrl/user/addresses/$addressId');
+  // Added get method
+  static Future<Map<String, dynamic>> get(String endpoint, {Map<String, dynamic>? queryParams}) async {
+    final uri = Uri.parse('$currentBaseUrl$endpoint').replace(queryParameters: queryParams);
     try {
-      final response = await http.put(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          if (name != null) 'name': name,
-          if (governorate != null) 'governorate': governorate,
-          if (district != null) 'district': district,
-          if (neighborhood != null) 'neighborhood': neighborhood,
-          if (landmark != null) 'landmark': landmark,
-          if (isDefault != null) 'is_default': isDefault,
-        }),
-      );
-
-      final responseData = jsonDecode(utf8.decode(response.bodyBytes));
-
+      final response = await http.get(uri).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
-        return {"success": true, "data": responseData};
+        return jsonDecode(response.body);
       } else {
-        // معالجة محسنة لرسائل الخطأ
-        String errorMessage = "فشل في تحديث العنوان";
-        
-        if (responseData.containsKey("message")) {
-          errorMessage = responseData["message"];
-        } else if (responseData.containsKey("detail")) {
-          errorMessage = responseData["detail"];
-        }
-        
-        return {
-          "success": false,
-          "message": errorMessage
-        };
+        throw Exception('Failed to fetch data: ${response.statusCode}');
       }
     } catch (e) {
-      return {"success": false, "message": "تعذر الاتصال بالخادم"};
+      throw Exception('Error during GET request: $e');
     }
-  }
-
-  // تحديد عنوان كافتراضي
-  static Future<Map<String, dynamic>> setDefaultAddress({
-    required String token,
-    required String addressId,
-  }) async {
-    return await updateUserAddress(
-      token: token,
-      addressId: addressId,
-      isDefault: true,
-    );
   }
 
   // دالة لاختبار الاتصال بالخادم
   static Future<Map<String, dynamic>> testConnection() async {
     try {
-      final url = Uri.parse("$baseUrl/");
+      final url = Uri.parse("$currentBaseUrl/");
       print("اختبار الاتصال بـ: $url");
       
       final response = await http.get(url).timeout(const Duration(seconds: 5));
@@ -442,11 +530,7 @@ class ApiService {
       }
     } catch (e) {
       print("خطأ في اختبار الاتصال: $e");
-      if (e.toString().contains('SocketException')) {
-        return {"success": false, "message": "تعذر الوصول إلى الخادم. تأكد من تشغيل الخادم على البورت 8004"};
-      } else {
-        return {"success": false, "message": "فشل الاتصال: ${e.toString()}"};
-      }
+      return {"success": false, "message": "تعذر الوصول إلى الخادم: ${e.toString()}"};
     }
   }
 }

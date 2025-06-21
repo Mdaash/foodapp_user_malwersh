@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserSession {
@@ -6,6 +5,28 @@ class UserSession {
   static UserSession get instance => _instance ??= UserSession._();
   
   UserSession._();
+
+  // دالة callback لمسح السلة عند تغيير الجلسة
+  static Function()? _onSessionChange;
+
+  // تسجيل callback لمسح السلة
+  static void setSessionChangeCallback(Function() callback) {
+    _onSessionChange = callback;
+  }
+
+  // استدعاء callback عند تغيير الجلسة
+  void _notifySessionChange() {
+    if (_onSessionChange != null) {
+      _onSessionChange!();
+    }
+  }
+
+  // استدعاء callback - دالة عامة
+  static void notifySessionChange() {
+    if (_onSessionChange != null) {
+      _onSessionChange!();
+    }
+  }
 
   // بيانات المستخدم
   String? _token;
@@ -47,6 +68,10 @@ class UserSession {
 
   // الدخول كضيف
   Future<void> loginAsGuest() async {
+    // مسح جميع البيانات أولاً
+    await logout();
+    
+    // تعيين الحالة كضيف
     _token = null;
     _userId = null;
     _userName = 'ضيف';
@@ -56,6 +81,11 @@ class UserSession {
     _isGuest = true;
 
     await _saveToPrefs();
+    
+    print('تم تسجيل الدخول كضيف وتم مسح جميع البيانات السابقة');
+    
+    // مسح السلة عند الدخول كضيف
+    _notifySessionChange();
   }
 
   // تسجيل الخروج
@@ -69,6 +99,9 @@ class UserSession {
     _isGuest = false;
 
     await _clearPrefs();
+    
+    // مسح السلة عند تسجيل الخروج
+    _notifySessionChange();
   }
 
   // تحميل البيانات من التخزين المحلي

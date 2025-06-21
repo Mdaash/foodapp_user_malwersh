@@ -2,10 +2,14 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:collection/collection.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import 'cart_item.dart';
+import '../services/enhanced_session_service.dart';
 
 class CartModel extends ChangeNotifier {
   final List<CartItem> _items = [];
+  bool _isLoaded = false;
 
   /// عناصر السلة
   List<CartItem> get items => List.unmodifiable(_items);
@@ -20,6 +24,84 @@ class CartModel extends ChangeNotifier {
   /// المعرّف الحالي للمتجر (null إذا كانت السلة فارغة)
   String? get currentStoreId =>
       _items.isEmpty ? null : _items.first.storeId;
+
+  /// هل تم تحميل السلة من التخزين المحلي
+  bool get isLoaded => _isLoaded;
+
+  /// الحصول على مفتاح السلة للمستخدم الحالي
+  Future<String> _getCartKey() async {
+    final userId = await EnhancedSessionService.getUserId();
+    final isGuest = await EnhancedSessionService.isGuest();
+    
+    if (isGuest) {
+      return 'cart_items_guest';
+    } else if (userId != null) {
+      return 'cart_items_$userId';
+    } else {
+      return 'cart_items_anonymous';
+    }
+  }
+
+  /// تحميل السلة من التخزين المحلي
+  Future<void> loadFromStorage() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cartKey = await _getCartKey();
+      final cartData = prefs.getString(cartKey);
+      
+      // تنظيف السلة الحالية أولاً
+      _items.clear();
+      
+      if (cartData != null) {
+        final List<dynamic> jsonList = json.decode(cartData);
+        
+        for (final itemJson in jsonList) {
+          try {
+            final cartItem = CartItem.fromFullJson(itemJson as Map<String, dynamic>);
+            _items.add(cartItem);
+          } catch (e) {
+            debugPrint('خطأ في تحميل عنصر السلة: $e');
+          }
+        }
+        
+        debugPrint('تم تحميل ${_items.length} عنصر من السلة للمستخدم: $cartKey');
+      } else {
+        debugPrint('لا توجد سلة محفوظة للمستخدم: $cartKey');
+      }
+    } catch (e) {
+      debugPrint('خطأ في تحميل السلة من التخزين: $e');
+      // في حالة الخطأ، تنظيف السلة للحماية
+      _items.clear();
+    } finally {
+      _isLoaded = true;
+      notifyListeners();
+    }
+  }
+
+  /// حفظ السلة في التخزين المحلي
+  Future<void> saveToStorage() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cartKey = await _getCartKey();
+      final cartData = json.encode(_items.map((item) => item.toJson()).toList());
+      await prefs.setString(cartKey, cartData);
+      debugPrint('تم حفظ ${_items.length} عنصر في السلة للمستخدم: $cartKey');
+    } catch (e) {
+      debugPrint('خطأ في حفظ السلة: $e');
+    }
+  }
+
+  /// مسح السلة من التخزين المحلي
+  Future<void> clearStorage() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cartKey = await _getCartKey();
+      await prefs.remove(cartKey);
+      debugPrint('تم مسح السلة من التخزين للمستخدم: $cartKey');
+    } catch (e) {
+      debugPrint('خطأ في مسح السلة من التخزين: $e');
+    }
+  }
 
   /// إضافة عنصر مع التحقق من المطعم
   void addItem(CartItem newItem) {
@@ -52,6 +134,7 @@ class CartModel extends ChangeNotifier {
     }
 
     notifyListeners();
+    saveToStorage(); // حفظ تلقائي
   }
 
   void updateItemQuantity(CartItem item, int newQuantity) {
@@ -72,15 +155,30 @@ class CartModel extends ChangeNotifier {
       );
     }
     notifyListeners();
+    saveToStorage(); // حفظ تلقائي
   }
 
   void removeItem(CartItem item) {
     _items.remove(item);
     notifyListeners();
+    saveToStorage(); // حفظ تلقائي
   }
 
   void clear() {
     _items.clear();
     notifyListeners();
+    clearStorage(); // مسح من التخزين أيضاً
+  }
+
+  /// مسح السلة عند تغيير الجلسة (بدلاً من الحذف، نحمل السلة الصحيحة)
+  Future<void> clearOnSessionChange() async {
+    // مسح السلة المعروضة حالياً في الذاكرة
+    _items.clear();
+    
+    // إعادة تحميل السلة المناسبة للمستخدم الجديد
+    // هذا سيحمل السلة الفارغة للمستخدم الجديد أو سلته المحفوظة
+    await loadFromStorage();
+    
+    debugPrint('تم تبديل السلة بسبب تغيير الجلسة');
   }
 }

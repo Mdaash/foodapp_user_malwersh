@@ -6,6 +6,7 @@ import '../models/store.dart';
 import '../models/offer.dart';
 import '../services/search_service.dart';
 import '../models/search_result.dart';
+import '../widgets/cached_image.dart';
 import 'store_detail_screen.dart';
 import 'dish_detail_screen.dart';
 
@@ -639,17 +640,11 @@ class _EnhancedSearchScreenState extends State<EnhancedSearchScreen> with Ticker
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (offer.imageUrl.isNotEmpty)
-              Container(
+              CachedImage(
+                imageUrl: offer.imageUrl,
                 height: 120,
                 width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  image: DecorationImage(
-                    image: NetworkImage(offer.imageUrl),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                margin: const EdgeInsets.only(bottom: 16),
+                borderRadius: BorderRadius.circular(12),
               ),
             Text(
               offer.description,

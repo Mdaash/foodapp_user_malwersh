@@ -1,6 +1,9 @@
 // lib/screens/signup_screen.dart
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
+import '../services/auth_service.dart';
+import '../services/enhanced_session_service.dart';
+import 'home_screen.dart';
+import 'login_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -17,6 +20,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _phoneController    = TextEditingController();
 
   bool _isLoading = false;
+  bool _obscurePassword = true;
   String? _errorMessage;
 
   @override
@@ -33,39 +37,94 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  Future<void> _handleRegister() async {
+  void _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
-      _isLoading    = true;
+      _isLoading = true;
       _errorMessage = null;
     });
 
-    // تسجيل المعلومات الأساسية للمستخدم فقط
-    // العناوين سيتم إدارتها في جدول منفصل لاحقاً
-    final result = await ApiService.register(
-      name:    _nameController.text.trim(),
-      email:   _emailController.text.trim().isEmpty ? "" : _emailController.text.trim(),
-      password:_passwordController.text.trim(),
-      phone:   _phoneController.text.trim(),
-    );
-    // بعد الـ await، تأكد أن الـ State ما زال mounted قبل أي تفاعل مع context
-    if (!mounted) return;
-
-    setState(() => _isLoading = false);
-
-    if (result["success"] == true) {
-      // قبل استخدام ScaffoldMessenger أو Navigator تأكد مجدداً من mounted
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("تم إنشاء الحساب بنجاح ✅ يمكنك إضافة العناوين لاحقاً عند الطلب"),
-          duration: Duration(seconds: 4),
-        ),
+    try {
+      // محاولة التسجيل
+      final result = await AuthService.register(
+        name: _nameController.text.trim(),
+        phone: _phoneController.text.trim(),
+        email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
-      Navigator.pop(context);
-    } else {
-      setState(() => _errorMessage = result["message"] as String?);
+
+      setState(() => _isLoading = false);
+
+      if (!mounted) return;
+
+      if (result['success']) {
+        // تسجيل دخول آلي بعد إنشاء الحساب
+        setState(() {
+          _isLoading = true;
+          _errorMessage = null;
+        });
+
+        // محاولة تسجيل الدخول آلياً
+        final loginResult = await AuthService.login(
+          identifier: _phoneController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+
+        if (loginResult['success']) {
+          // حفظ بيانات الجلسة
+          final data = loginResult['data'];
+          final userData = data['user'] ?? {};
+          
+          await EnhancedSessionService.saveSession(
+            token: data['access_token'] ?? 'temp_token',
+            userId: data['user_id']?.toString() ?? userData['user_id']?.toString() ?? 'temp_user_id',
+            userName: userData['name'] ?? _nameController.text.trim(),
+            userPhone: userData['phone'] ?? _phoneController.text.trim(),
+            userEmail: userData['email'] ?? (_emailController.text.trim().isEmpty ? null : _emailController.text.trim()),
+          );
+
+          // عرض رسالة نجاح
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message'] ?? 'تم إنشاء الحساب وتسجيل الدخول بنجاح'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+
+          // الانتقال للشاشة الرئيسية
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomeScreen()),
+          );
+        } else {
+          // إذا فشل تسجيل الدخول الآلي، اعرض رسالة نجاح التسجيل واطلب تسجيل الدخول
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message'] ?? 'تم إنشاء الحساب بنجاح. يرجى تسجيل الدخول الآن.'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+          
+          // الانتقال لشاشة تسجيل الدخول
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+          );
+        }
+      } else {
+        // عرض رسالة الخطأ
+        setState(() {
+          _errorMessage = result['message'] ?? 'حدث خطأ غير متوقع';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'حدث خطأ في الاتصال: ${e.toString()}';
+      });
     }
   }
 
@@ -94,28 +153,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 20),
-                // ملاحظة للمستخدم
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.blue[200]!),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.info_outline, color: Colors.blue, size: 20),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'المعلومات الأساسية فقط مطلوبة للتسجيل ⭐ البريد الإلكتروني اختياري. العناوين ستتم إضافتها عند الحاجة.',
-                          style: TextStyle(fontSize: 14, color: Colors.blue),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
                 _buildTextField(_nameController, "الاسم الكامل", isRequired: true),
                 const SizedBox(height: 16),
                 _buildTextField(_emailController, "البريد الإلكتروني (اختياري)",
@@ -176,6 +213,61 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ),
                 ),
+                
+                // فاصل "أو"
+                const SizedBox(height: 30),
+                Row(
+                  children: [
+                    const Expanded(child: Divider()),
+                    const SizedBox(width: 16),
+                    Text(
+                      'أو',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(child: Divider()),
+                  ],
+                ),
+                
+                // رابط تسجيل الدخول
+                const SizedBox(height: 20),
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'لديك حساب بالفعل؟ ',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 14,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => const LoginScreen()),
+                          );
+                        },
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                        ),
+                        child: const Text(
+                          'سجل دخول',
+                          style: TextStyle(
+                            color: Color(0xFF00c1e8),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -194,15 +286,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return TextFormField(
       controller: controller,
       keyboardType: type,
-      obscureText: isPassword,
+      obscureText: isPassword ? _obscurePassword : false,
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
         filled: true,
         fillColor: Colors.grey[50],
-        suffixIcon: isRequired 
-          ? const Icon(Icons.star, color: Colors.red, size: 12)
-          : const Icon(Icons.star_border, color: Colors.grey, size: 12),
+        suffixIcon: isPassword 
+          ? IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility : Icons.visibility_off,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
+            )
+          : (isRequired 
+              ? const Icon(Icons.star, color: Colors.red, size: 12)
+              : const Icon(Icons.star_border, color: Colors.grey, size: 12)),
       ),
       validator: (value) {
         // إذا كان الحقل غير مطلوب وفارغ، فلا مشكلة

@@ -1357,11 +1357,11 @@ class _CartScreenState extends State<CartScreen> {
         orElse: () => widget.stores!.first,
       );
       
-      // العودة للشاشة الرئيسية ثم الانتقال لشاشة المطعم
-      Navigator.popUntil(context, (route) => route.isFirst);
+      // العودة للشاشة السابقة ثم الانتقال لشاشة المطعم
+      Navigator.pop(context);
       
-      // الانتقال لشاشة تفاصيل المطعم باستخدام MaterialPageRoute
-      Navigator.push(
+      // الانتقال لشاشة تفاصيل المطعم باستخدام pushReplacement
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => StoreDetailScreen(

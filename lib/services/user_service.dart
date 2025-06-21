@@ -118,7 +118,7 @@ class UserService extends ChangeNotifier {
   ];
 
   // بيانات المستخدم الشخصية
-  bool _isLoggedIn = true; // محاكاة تسجيل الدخول
+  final bool _isLoggedIn = true; // محاكاة تسجيل الدخول
   String _userName = 'أحمد محمد العلي';
   String _userPhone = '+964 770 123 4567';
   Map<String, String> _userAddress = {

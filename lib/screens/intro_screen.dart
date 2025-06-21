@@ -3,6 +3,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
 import 'home_screen.dart';
+import '../services/enhanced_session_service.dart';
 
 class IntroScreen extends StatefulWidget {
   const IntroScreen({super.key});
@@ -196,7 +197,11 @@ class _IntroScreenState extends State<IntroScreen> {
               top: 40,
               right: 20,
               child: GestureDetector(
-                onTap: () {
+                onTap: () async {
+                  // تعيين الجلسة كضيف عند الضغط على تخطي
+                  await EnhancedSessionService.saveGuestSession();
+                  
+                  if (!mounted) return;
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (_) => const HomeScreen()),
